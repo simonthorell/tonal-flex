@@ -10,7 +10,31 @@ Our goal is to empower musicians, sound engineers, and developers with modular, 
 
 Join us as we revolutionize audio processing with open-source innovation! 🚀 🎛️
 
----
+## Project Rules
+
+### Git Branches
+
+In this project we apply the single rule of using developer initials plus feature name in kebab-case.
+
+Feature Branch Examples:
+
+```shell
+st-plugins
+rk-ui-bluetooth
+st-core-app
+rk-plugin-chorus
+```
+
+Any merge into the `main` branch must be made through a `Pull Request`.
+
+### Commit Rules
+
+All commits must:
+
+1. **Be short and descriptive**: Clearly state the purpose of the commit.
+2. **Use imperative mood**: Start with action verbs like "Add", "Fix", "Change", "Update" or "Refactor".
+3. **Focus on one change**: Keep commits atomic and specific.
+4. **Avoid large commits**: Break down large changes into smaller, logical commits to make them easier to review and understand.
 
 ## The Problems We Want to Solve
 
