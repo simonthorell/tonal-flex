@@ -21,7 +21,9 @@ curl -L https://github.com/elk-audio/sushi/releases/download/1.1.0/sushi-macos-x
 
 ```shell
 cd plugins/.sushi/sushi
+# Here are some tests to make sure it works:
 ./sushi --coreaudio -c config_files/play_brickworks_synth.json
+./sushi --coreaudio -c config_files/play_vst3.json
 ```
 
 ### Sushi Links:
