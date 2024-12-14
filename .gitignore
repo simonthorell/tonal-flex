@@ -1,3 +1,6 @@
 # Assets
 .assets/*
 !.assets/logo.png
+
+# Root
+.DS_Store
