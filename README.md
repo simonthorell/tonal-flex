@@ -2,8 +2,6 @@
 
 ---
 
-Test push to main.
-
 TonalFlex is an open-source project dedicated to making professional-grade audio processing more accessible, flexible, and cost-effective.
 
 Using modern technologies like ElkOS, JUCE C++, and Bluetooth MIDI, we’re building real-time audio processing solutions that integrate seamlessly with wireless controllers and modern web-based UI-interfaces.
