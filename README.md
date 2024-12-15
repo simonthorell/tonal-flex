@@ -38,8 +38,6 @@ All commits must:
 3. **Focus on one change**: Keep commits atomic and specific.
 4. **Avoid large commits**: Break down large changes into smaller, logical commits to make them easier to review and understand.
 
----
-
 ### Pull Request Rules
 
 1. **Keep it simple**: Focus on solving one issue or implementing one feature at a time.
