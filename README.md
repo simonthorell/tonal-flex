@@ -40,6 +40,15 @@ All commits must:
 
 ---
 
+### Pull Request Rules
+
+1. **Keep it simple**: Focus on solving one issue or implementing one feature at a time.
+2. **Write a clear title**: Summarize the purpose of the pull request in a single line.
+3. **Link relevant issues**: Reference issues with `Fixes #<issue-number>` if applicable.
+4. **Ensure readiness**: Verify that all tests pass and documentation is updated before submitting.
+
+---
+
 ## The Problems We Want to Solve
 
 Professional audio systems often come with significant limitations, including:
