@@ -48,5 +48,9 @@ WORKDIR /plugins
 # Copy the local plugins folder into the container
 COPY . .
 
-# Default command for running a build
-CMD ["/bin/bash"]
+# Add the build script
+COPY build-plugins.sh /usr/local/bin/build-plugins.sh
+RUN chmod +x /usr/local/bin/build-plugins.sh
+
+# Default command for building plugins
+CMD ["/usr/local/bin/build-plugins.sh"]

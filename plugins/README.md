@@ -83,3 +83,11 @@ Copy the .so file to the ElkOS device:
 # Copy code to path
 scp build/Release/TonalFlexPlugin.so user@elkos-device:/path/to/plugins/
 ```
+
+## Dev Notes (REMOVE LATER!!!)
+
+```shell
+cd plugins
+docker build -t juce-plugin-builder .
+docker run -it --rm -v "$(pwd):/plugins" juce-plugin-builder
+```
