@@ -30,7 +30,19 @@ cd plugins/.sushi/sushi
 
 - [Running a plugin within the Sushi host](https://elk-audio.github.io/elk-docs/html/intro/getting_started_with_development_kit_software.html)
 
-## JUCE C++ - Build & Run
+## Build & Run Plugins
+
+```shell
+cd plugins
+docker build -t juce-plugin-builder .
+docker run -it --rm -v "$(pwd):/plugins" juce-plugin-builder
+```
+
+# ** Build Plugins Without Script **
+
+Below code is just to inform how you can manually build plugins without Docker and corresponding shell scripts.
+
+### JUCE C++ - Build & Run
 
 Download & Install JUCE:
 
@@ -48,7 +60,7 @@ Run dockerfile:
 docker run -it --rm -v "$(pwd):/plugins" juce-plugin-builder
 ```
 
-## Cross-Compiling for ElkOS
+### Cross-Compiling for ElkOS
 
 When targeting ElkOS, we need to configure JUCE for ARM cross-compilation:
 
@@ -82,12 +94,4 @@ Copy the .so file to the ElkOS device:
 ```shell
 # Copy code to path
 scp build/Release/TonalFlexPlugin.so user@elkos-device:/path/to/plugins/
-```
-
-## Dev Notes (REMOVE LATER!!!)
-
-```shell
-cd plugins
-docker build -t juce-plugin-builder .
-docker run -it --rm -v "$(pwd):/plugins" juce-plugin-builder
 ```
