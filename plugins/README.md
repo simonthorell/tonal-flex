@@ -1,5 +1,18 @@
 # Plugin Development with JUCE C++ and ElkOS Sushi
 
+## Build and run VST3 Native/Standalone Plugin (MacOS)
+
+```shell
+cd plugins
+cmake -S . -B build
+cmake --build build
+
+# Example for running plugin-template on MacOS Standalone
+cd build/plugin-template/AudioPlugin_artefacts/Standalone/
+chmod +x plugin-template.app/Contents/MacOS/*
+open ./plugin-template.app
+```
+
 ## Install ElkOS Sushi Locally
 
 ### ElkOS Sushi - Download & Run
