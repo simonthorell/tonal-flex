@@ -5,7 +5,7 @@ project(AudioPluginTest)
 enable_testing()
 
 add_executable(${PROJECT_NAME}
-    src/AudioProcessorTest.cpp)
+    src/test_audio_processor.cpp)
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE

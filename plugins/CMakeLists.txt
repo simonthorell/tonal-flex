@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(TonalFlexPlugin)
+project(tonal_flex_plugins)
 
 set(CMAKE_CXX_STANDARD 20) # Latest C++ standard JUCE support
 set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs) # Holds CPM & JUCE libs

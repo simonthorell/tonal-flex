@@ -1,4 +1,4 @@
-#include <plugin-template/PluginProcessor.h>
+#include <plugin-template/plugin_processor.h>
 #include <gtest/gtest.h>
 
 namespace audio_plugin_test {

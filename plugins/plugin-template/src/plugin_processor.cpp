@@ -1,5 +1,5 @@
-#include "plugin-template/PluginProcessor.h"
-#include "plugin-template/PluginEditor.h"
+#include "plugin-template/plugin_processor.h"
+#include "plugin-template/plugin_editor.h"
 
 // Temporary Fallback macro
 // Should be defined in (#include <JuceHeader.h>)

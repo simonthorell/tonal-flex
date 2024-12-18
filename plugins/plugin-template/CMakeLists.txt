@@ -18,10 +18,10 @@ juce_add_plugin(${PROJECT_NAME}
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-        src/PluginEditor.cpp
-        src/PluginProcessor.cpp
-        ${INCLUDE_DIR}/PluginEditor.h
-        ${INCLUDE_DIR}/PluginProcessor.h
+        src/plugin_editor.cpp
+        src/plugin_processor.cpp
+        ${INCLUDE_DIR}/plugin_editor.h
+        ${INCLUDE_DIR}/plugin_processor.h
 )
 
 target_include_directories(${PROJECT_NAME}
