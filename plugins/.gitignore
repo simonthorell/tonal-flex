@@ -1,5 +1,4 @@
+.sushi/
+.output/
 libs/
 build/
-
-# TODO: Remove later...
-.plugins-old/ 
