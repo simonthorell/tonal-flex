@@ -1,26 +1,41 @@
 # Plugin Development with JUCE C++ and ElkOS Sushi
 
-## Build and run VST3 Native/Standalone Plugin (MacOS)
+## Create & Build VST3 Plugin (MacOS)
+
+### Build & Test VST3 Plugin (MacOS)
 
 ```shell
 cd plugins
 cmake -S . -B build
-cmake --build build
 
+# For building or testing use the CMake presets
+cmake --build build
+cmake --preset default # uses Ninja build system
+
+# Run GoogleTests
+ctest --preset default
+```
+
+Building Release:
+
+```shell
+# NOT REQUIRED DURING DEVELOPMENT!
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```
+
+### Run VST3 Plugin (MacOS)
+
+```shell
 # Example for running plugin-template on MacOS Standalone
 cd build/plugin-template/AudioPlugin_artefacts/Standalone/
 chmod +x plugin-template.app/Contents/MacOS/*
 open ./plugin-template.app
-
-# For building or testing use the CMake presets
-cmake --preset default # uses the Ninja build system
-cmake --build build
-ctest --preset default
 ```
 
-## Install ElkOS Sushi Locally
+## Install & Run ElkOS Sushi
 
-### ElkOS Sushi - Download & Run
+### Install ElkOS Sushi
 
 ```shell
 cd tonal-flex # root
@@ -37,7 +52,7 @@ curl -L https://github.com/elk-audio/sushi/releases/download/1.1.0/sushi-macos-x
 # 3. Clear quarantine using `xattr -rc sushi`
 ```
 
-### Run Sushi
+### Run ElkOS Sushi
 
 ```shell
 cd plugins/.sushi/sushi

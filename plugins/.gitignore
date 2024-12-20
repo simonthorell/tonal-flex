@@ -1,3 +1,4 @@
 .sushi/
+.output/
 libs/
 build/
