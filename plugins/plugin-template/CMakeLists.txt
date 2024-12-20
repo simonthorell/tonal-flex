@@ -4,6 +4,9 @@ project(AudioPlugin VERSION 0.0.1) # Required by JUCE
 
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/plugin-template")
 
+# Suppress warnings for CMP0175
+cmake_policy(SET CMP0175 OLD)
+
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME TonalFlex
     PLUGIN_NAME "plugin-template"

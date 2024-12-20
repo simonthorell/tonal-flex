@@ -3,8 +3,7 @@
 
 // Temporary Fallback macro
 // Should be defined in (#include <JuceHeader.h>)
-#define JucePlugin_Name "reverb"
-
+#define JucePlugin_Name "plugin-template"
 namespace audio_plugin {
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     : AudioProcessor(

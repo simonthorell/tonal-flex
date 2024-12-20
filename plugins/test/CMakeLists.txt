@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(test_audio_processor)
+project(AudioPluginTest)
 
 enable_testing()
 
@@ -16,7 +16,7 @@ target_include_directories(${PROJECT_NAME}
 # Link to GTest main lib
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        plugin-template
+        AudioPlugin
         GTest::gtest_main)
 
 # Treat all warnings as errors

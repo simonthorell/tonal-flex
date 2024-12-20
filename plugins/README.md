@@ -21,6 +21,8 @@ Building Release:
 ```shell
 # NOT REQUIRED DURING DEVELOPMENT!
 cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+# Build for Release:
 cmake --build build --config Release
 ```
 
@@ -29,6 +31,9 @@ cmake --build build --config Release
 ```shell
 # Example for running plugin-template on MacOS Standalone
 cd build/plugin-template/AudioPlugin_artefacts/Standalone/
+cd build/plugin-template/AudioPlugin_artefacts/Debug/Standalone/
+cd build/plugin-template/AudioPlugin_artefacts/Release/Standalone/
+
 chmod +x plugin-template.app/Contents/MacOS/*
 open ./plugin-template.app
 ```
