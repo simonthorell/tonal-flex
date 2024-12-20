@@ -2,6 +2,18 @@
 
 ## Create & Build VST3 Plugin (MacOS)
 
+### Testing
+
+````shell
+cd plugins
+cmake -S . -B build
+cmake --build build
+cd build/plugin-template/AudioPlugin_artefacts/Release/Standalone/
+# cd build/plugin-template/AudioPlugin_artefacts/Debug/Standalone/
+# chmod +x plugin-template.app/Contents/MacOS/* # IF NEEDED!
+open ./plugin-template.app
+```
+
 ### Build & Test VST3 Plugin (MacOS)
 
 ```shell
@@ -14,7 +26,7 @@ cmake --preset default # uses Ninja build system
 
 # Run GoogleTests
 ctest --preset default
-```
+````
 
 Building Release:
 
@@ -30,7 +42,6 @@ cmake --build build --config Release
 
 ```shell
 # Example for running plugin-template on MacOS Standalone
-cd build/plugin-template/AudioPlugin_artefacts/Standalone/
 cd build/plugin-template/AudioPlugin_artefacts/Debug/Standalone/
 cd build/plugin-template/AudioPlugin_artefacts/Release/Standalone/
 
