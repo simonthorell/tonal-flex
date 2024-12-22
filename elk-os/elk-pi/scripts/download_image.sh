@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-# color codes
+# Color codes
 BOLD_GREEN="\033[1;32m"
 RESET="\033[0m"
 
 echo -e "${BOLD_GREEN}Starting Elk RaspberryPi4 image download script...${RESET}\n"
 
-# download to the rpi-image directory
+# Download to the rpi-image directory
 cd "$(dirname "$0")"
 cd ../rpi-image
 
