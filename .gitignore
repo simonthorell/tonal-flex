@@ -5,3 +5,6 @@
 # Root
 .DS_Store
 .vscode/
+
+# ElkOS
+elk-os/elk-pi/rpi4-image/*
