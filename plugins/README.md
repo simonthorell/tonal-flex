@@ -4,11 +4,13 @@
 
 ### Testing
 
-````shell
+```shell
 cd plugins
-cmake -S . -B build
+# cmake -S . -B build
+cmake -B build -S . -DBUILD_DESKTOP=ON
 cmake --build build
 cd build/plugin-template/AudioPlugin_artefacts/Release/Standalone/
+# cd build/plugin-template/AudioPlugin_artefacts/Release/Standalone/
 # cd build/plugin-template/AudioPlugin_artefacts/Debug/Standalone/
 # chmod +x plugin-template.app/Contents/MacOS/* # IF NEEDED!
 open ./plugin-template.app
@@ -26,7 +28,7 @@ cmake --preset default # uses Ninja build system
 
 # Run GoogleTests
 ctest --preset default
-````
+```
 
 Building Release:
 

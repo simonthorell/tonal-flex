@@ -1,0 +1,12 @@
+services:
+  elk-pi-sdk:
+    container_name: elk-pi-sdk
+    platform: linux/amd64 # Required for Apple Silicon Macs
+    build:
+      context: .
+      dockerfile: ./elk-os/elk-pi-sdk/Dockerfile
+    volumes:
+      # Mount the plugins to the container that should be cross-compiled
+      - ./plugins/plugin-template:/home/yoctouser/plugins/plugin-template
+    tty: true
+    stdin_open: true
