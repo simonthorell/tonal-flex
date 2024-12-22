@@ -1,95 +1,164 @@
 <template>
-  <div class="dashboard">
-    <header>
-      <h1>Sushi Plugin Dashboard</h1>
-    </header>
-    <section>
-      <div v-if="loading">Loading plugins...</div>
+    <div class="dashboard">
+      <h1>Sushi Dashboard</h1>
+      <div v-if="loading" class="loading">Loading...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
-      <div v-else-if="!plugins.length">
-        <p>No plugins available.</p>
+      <div v-else>
+        <div class="build-info">
+          <h3>Build Info</h3>
+          <div v-if="buildInfo" class="info-container">
+            <div class="info-row">
+              <span class="label">Version:</span>
+              <span class="value">{{ buildInfo.version }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Build Options:</span>
+              <span class="value">{{ buildInfo.buildOptions.join(", ") }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Audio Buffer Size:</span>
+              <span class="value">{{ buildInfo.audioBufferSize }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Commit Hash:</span>
+              <span class="value">{{ buildInfo.commitHash }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Build Date:</span>
+              <span class="value">{{ buildInfo.buildDate }}</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div v-else class="plugin-list">
-        <h2>Plugins</h2>
-        <ul>
-          <li
-            v-for="plugin in plugins"
-            :key="plugin.id"
-            @click="selectPlugin(plugin)"
-          >
-            {{ plugin.name }}
-          </li>
-        </ul>
-      </div>
-
-      <div v-if="selectedPlugin" class="plugin-details">
-        <h3>{{ selectedPlugin.name }}</h3>
-        <p>Label: {{ selectedPlugin.label || "N/A" }}</p>
-        <p>Parameters: {{ selectedPlugin.parameterCount || 0 }}</p>
-        <p>Programs: {{ selectedPlugin.programCount || 0 }}</p>
-      </div>
-    </section>
-  </div>
-</template>
-
-<script setup lang="ts">
-import { ref, computed } from "vue";
-import { usePluginStore } from "@/stores/pluginStore";
-import { ProcessorInfo } from "@/prototype/sushi_rpc_pb";
-
-// Initialize the store
-const pluginStore = usePluginStore();
-pluginStore.fetchPlugins();
-
-// Reactive references for plugins and selected plugin
-const plugins = computed(() => pluginStore.plugins);
-const selectedPlugin = ref<ProcessorInfo.AsObject | null>(null);
-
-// Handle errors and loading state
-const loading = computed(() => pluginStore.loading);
-const error = computed(() => pluginStore.error);
-
-// Select a plugin from the list
-const selectPlugin = (plugin: ProcessorInfo.AsObject) => {
-  selectedPlugin.value = plugin;
-};
-</script>
-
-<style scoped>
+      <button class="reload-button" @click="reloadData">Reload</button>
+    </div>
+  </template>
+  
+  
+  
+  <script lang="ts">
+  import { defineComponent, ref } from "vue";
+  import pluginStore from "@/stores/pluginStore";
+  
+  export default defineComponent({
+    name: "Dashboard",
+    setup() {
+      // State variables
+      const buildInfo = ref<{
+        version: string;
+        buildOptions: string[];
+        audioBufferSize: number;
+        commitHash: string;
+        buildDate: string;
+      } | null>(null);
+      const error = ref<string | null>(null);
+      const loading = ref(false);
+  
+      // Fetch data from the gRPC client
+      const fetchData = async () => {
+        loading.value = true;
+        error.value = null; // Reset error state
+        try {
+          buildInfo.value = await pluginStore.getBuildInfo();
+        } catch (err) {
+          error.value = (err as Error).message; // Capture error
+        } finally {
+          loading.value = false; // Reset loading state
+        }
+      };
+  
+      // Reload data on button click
+      const reloadData = () => fetchData();
+  
+      // Fetch data on initial render
+      fetchData();
+  
+      return {
+        buildInfo,
+        error,
+        loading,
+        reloadData,
+      };
+    },
+  });
+  </script>
+  
+  <style scoped>
 .dashboard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+  max-width: 600px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  color: #333;
 }
 
-.plugin-list {
+h1 {
+  font-size: 2rem;
+  color: #8b8a8a;
   margin-bottom: 20px;
 }
 
-.plugin-list ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.plugin-list li {
-  cursor: pointer;
-  margin: 5px 0;
-  padding: 5px;
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.plugin-details {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
+.loading {
+  font-size: 1.2rem;
+  color: #888;
 }
 
 .error {
+  font-size: 1rem;
   color: red;
+  margin-top: 10px;
+}
+
+.build-info {
+  background-color: #3b3b3b;
+  border: 1px solid #4e4e4e;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: left;
+  margin: 20px 0;
+}
+
+.build-info h3 {
+  font-size: 1.5rem;
+  color: #8b8a8a;
+  margin-bottom: 10px;
+}
+
+.info-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px 15px;
+}
+
+.info-row {
+  display: contents;
+}
+
+.label {
   font-weight: bold;
+  text-align: right;
+  color: #8b8a8a;
+}
+
+.value {
+  text-align: left;
+  color: #c4c4c4;
+}
+
+.reload-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.reload-button:hover {
+  background-color: #45a049;
 }
 </style>
+  
