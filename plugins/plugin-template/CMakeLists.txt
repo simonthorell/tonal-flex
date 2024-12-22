@@ -4,6 +4,19 @@ project(AudioPlugin VERSION 0.0.1) # Required by JUCE
 
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/plugin-template")
 
+option(BUILD_DESKTOP "Also build Standalone" OFF) # cmake -B build -S . -DBUILD_DESKTOP=ON
+set(_plugin_formats "VST3") # Default plugin formats
+
+if (BUILD_DESKTOP)
+    # Add Standalone format for desktop test builds
+    list(APPEND _plugin_formats "Standalone")
+else()
+    # Rely on installed JUCE inside x-compiler container
+    find_package(JUCE CONFIG REQUIRED)
+    # Disable LTO (Link-Time Optimization)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
+endif()
+
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME TonalFlex
     PLUGIN_NAME "plugin-template"
@@ -12,8 +25,10 @@ juce_add_plugin(${PROJECT_NAME}
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE MCMP
     PLUGIN_CODE EXPL
-    FORMATS Standalone VST3
+    FORMATS ${_plugin_formats}
+    # FORMATS Standalone VST3
     PRODUCT_NAME "plugin-template"
+    VST3_AUTO_MANIFEST FALSE
 )
 
 target_sources(${PROJECT_NAME}
