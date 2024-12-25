@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(ReverbPlugin VERSION 0.0.1) # Required by JUCE
+project(TonalFlexReverb VERSION 0.0.1) # Required by JUCE
 
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/plugin-reverb")
 
@@ -19,7 +19,7 @@ endif()
 
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME TonalFlex
-    PLUGIN_NAME "plugin-reverb"
+    PLUGIN_NAME "TonalFlexReverb"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
@@ -27,7 +27,7 @@ juce_add_plugin(${PROJECT_NAME}
     PLUGIN_CODE EXPL
     FORMATS ${_plugin_formats}
     # FORMATS Standalone VST3
-    PRODUCT_NAME "plugin-reverb"
+    PRODUCT_NAME "TonalFlexReverb"
     VST3_AUTO_MANIFEST FALSE
 )
 
@@ -35,8 +35,10 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/plugin_editor.cpp
         src/plugin_processor.cpp
+        src/tone_generator.cpp
         ${INCLUDE_DIR}/plugin_editor.h
         ${INCLUDE_DIR}/plugin_processor.h
+        ${INCLUDE_DIR}/tone_generator.h
 )
 
 target_include_directories(${PROJECT_NAME}
