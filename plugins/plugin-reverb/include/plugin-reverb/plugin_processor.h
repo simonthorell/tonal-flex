@@ -2,13 +2,10 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_dsp/juce_dsp.h>
-
 #include <juce_gui_basics/juce_gui_basics.h>
 // #include <juce_graphics/juce_graphics.h>
 // #include <juce_audio_utils/juce_audio_utils.h>
 // #include <juce_core/juce_core.h>
-
-#include "tone_generator.h"
 
 namespace audio_plugin {
 class AudioPluginAudioProcessor : public juce::AudioProcessor {
@@ -52,11 +49,6 @@ public:
 private:
   juce::Reverb reverb;
   juce::Reverb::Parameters reverbParams;
-
-  ToneGenerator toneGenerator;
-  double sampleRate = 44100.0;        // Default sample rate
-  double timeElapsed = 0.0;           // Time elapsed in seconds
-  const double toggleInterval = 0.5;  // Toggle interval in seconds
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessor)
 };

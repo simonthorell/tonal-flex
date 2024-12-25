@@ -18,7 +18,6 @@ else()
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
     # Disable VST3_AUTO_MANIFEST (Required for ElkOS cross-compilation)
     set(VST3_MANIFEST FALSE) 
-
 endif()
 
 juce_add_plugin(${PROJECT_NAME}
@@ -30,7 +29,6 @@ juce_add_plugin(${PROJECT_NAME}
     PLUGIN_MANUFACTURER_CODE MCMP
     PLUGIN_CODE EXPL
     FORMATS ${_plugin_formats}
-    # FORMATS Standalone VST3
     PRODUCT_NAME "TonalFlexReverb"
     VST3_AUTO_MANIFEST ${VST3_MANIFEST}
 )
@@ -39,10 +37,8 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         src/plugin_editor.cpp
         src/plugin_processor.cpp
-        src/tone_generator.cpp
         ${INCLUDE_DIR}/plugin_editor.h
         ${INCLUDE_DIR}/plugin_processor.h
-        ${INCLUDE_DIR}/tone_generator.h
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -60,8 +56,7 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_audio_processors
         juce::juce_dsp
         juce::juce_gui_basics
-        # juce::juce_graphics
-        # juce::juce_core
+
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

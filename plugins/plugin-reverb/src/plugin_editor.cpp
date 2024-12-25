@@ -2,8 +2,7 @@
 #include "plugin-reverb/plugin_processor.h"
 
 namespace audio_plugin {
-AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
-    AudioPluginAudioProcessor& p)
+AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor& p)
     : AudioProcessorEditor(&p), processorRef(p) {
   setSize(400, 300);
 
@@ -20,9 +19,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   addAndMakeVisible(roomSizeSlider);
   roomSizeSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   roomSizeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-  roomSizeAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.getParameters(), "roomSize", roomSizeSlider);
+  roomSizeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+      processorRef.getParameters(), "roomSize", roomSizeSlider);
 
   // Damping Slider
   addAndMakeVisible(dampingLabel);
@@ -31,9 +29,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   addAndMakeVisible(dampingSlider);
   dampingSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   dampingSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-  dampingAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.getParameters(), "damping", dampingSlider);
+  dampingAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+      processorRef.getParameters(), "damping", dampingSlider);
 
   // Wet Level Slider
   addAndMakeVisible(wetLevelLabel);
@@ -42,9 +39,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   addAndMakeVisible(wetLevelSlider);
   wetLevelSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   wetLevelSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-  wetLevelAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.getParameters(), "wetLevel", wetLevelSlider);
+  wetLevelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+      processorRef.getParameters(), "wetLevel", wetLevelSlider);
 
   // Dry Level Slider
   addAndMakeVisible(dryLevelLabel);
@@ -53,16 +49,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   addAndMakeVisible(dryLevelSlider);
   dryLevelSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   dryLevelSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-  dryLevelAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.getParameters(), "dryLevel", dryLevelSlider);
+  dryLevelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+      processorRef.getParameters(), "dryLevel", dryLevelSlider);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}
 
 void AudioPluginAudioProcessorEditor::paint(juce::Graphics& g) {
-  g.fillAll(
-      getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+  g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
   g.setColour(juce::Colours::white);
   g.setFont(15.0f);
 }

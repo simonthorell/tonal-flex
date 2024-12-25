@@ -12,13 +12,11 @@ public:
   void resized() override;
 
 private:
-  juce::Label headlineLabel, roomSizeLabel, dampingLabel, wetLevelLabel,
-      dryLevelLabel;
+  juce::Label headlineLabel, roomSizeLabel, dampingLabel, wetLevelLabel, dryLevelLabel;
   juce::Slider roomSizeSlider, dampingSlider, wetLevelSlider, dryLevelSlider;
 
-  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
-      roomSizeAttachment, dampingAttachment, wetLevelAttachment,
-      dryLevelAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> roomSizeAttachment, dampingAttachment,
+      wetLevelAttachment, dryLevelAttachment;
 
   AudioPluginAudioProcessor& processorRef;
 
