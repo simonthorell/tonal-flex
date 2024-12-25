@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(TemplatePlugin VERSION 0.0.1) # Required by JUCE
+project(ReverbPlugin VERSION 0.0.1) # Required by JUCE
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/plugin-template")
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/plugin-reverb")
 
 option(BUILD_DESKTOP "Also build Standalone" OFF) # cmake -B build -S . -DBUILD_DESKTOP=ON
 set(_plugin_formats "VST3") # Default plugin formats
@@ -19,7 +19,7 @@ endif()
 
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME TonalFlex
-    PLUGIN_NAME "plugin-template"
+    PLUGIN_NAME "plugin-reverb"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
@@ -27,7 +27,7 @@ juce_add_plugin(${PROJECT_NAME}
     PLUGIN_CODE EXPL
     FORMATS ${_plugin_formats}
     # FORMATS Standalone VST3
-    PRODUCT_NAME "plugin-template"
+    PRODUCT_NAME "plugin-reverb"
     VST3_AUTO_MANIFEST FALSE
 )
 
@@ -48,6 +48,14 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         juce::juce_audio_utils
+        juce::juce_audio_devices
+
+        # Additional modules
+        juce::juce_audio_processors
+        juce::juce_dsp
+        juce::juce_gui_basics
+        # juce::juce_graphics
+        # juce::juce_core
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

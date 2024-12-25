@@ -32,5 +32,6 @@ CPMAddPackage(
 enable_testing() # Allow running build tests
 
 # Add Subdirectories
-add_subdirectory(plugin-template) # Add plugin dirs here...
-add_subdirectory(test)
+add_subdirectory(plugin-reverb)
+# add_subdirectory(plugin-template) 
+# add_subdirectory(test)

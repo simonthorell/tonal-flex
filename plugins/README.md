@@ -7,13 +7,15 @@
 ```shell
 cd plugins
 # cmake -S . -B build
-cmake -B build -S . -DBUILD_DESKTOP=ON
+cmake -B build -S . -DBUILD_DESKTOP=ON -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
-cd build/plugin-template/AudioPlugin_artefacts/Release/Standalone/
-# cd build/plugin-template/AudioPlugin_artefacts/Release/Standalone/
-# cd build/plugin-template/AudioPlugin_artefacts/Debug/Standalone/
+# OR: cmake --build build --clean-first
+cd build/plugin-template/TemplatePlugin_artefacts/Debug/Standalone/
+# cd build/plugin-reverb/ReverbPlugin_artefacts/Debug/Standalone/
 # chmod +x plugin-template.app/Contents/MacOS/* # IF NEEDED!
 open ./plugin-template.app
+#open ./plugin-reverb.app
+
 ```
 
 ### Build & Test VST3 Plugin (MacOS)

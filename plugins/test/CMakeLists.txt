@@ -19,6 +19,13 @@ target_link_libraries(${PROJECT_NAME}
         AudioPlugin
         GTest::gtest_main)
 
+# Apply DEBUG or NDEBUG definitions
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+        $<$<CONFIG:Debug>:DEBUG>
+        $<$<CONFIG:Release>:NDEBUG>
+)
+
 # Treat all warnings as errors
 if (MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
