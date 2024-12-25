@@ -3,38 +3,22 @@
 
 namespace audio_plugin {
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
-    : AudioProcessor(
-          BusesProperties()
+    : AudioProcessor(BusesProperties()
 #if !JucePlugin_IsMidiEffect
 #if !JucePlugin_IsSynth
-              .withInput("Input", juce::AudioChannelSet::stereo(), true)
+                         .withInput("Input", juce::AudioChannelSet::stereo(), true)
 #endif
-              .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-              ),
+                         ),
+
       parameters(*this,
                  nullptr,
                  "PARAMETERS",
-                 {std::make_unique<juce::AudioParameterFloat>("roomSize",
-                                                              "Room Size",
-                                                              0.0f,
-                                                              1.0f,
-                                                              0.5f),
-                  std::make_unique<juce::AudioParameterFloat>("damping",
-                                                              "Damping",
-                                                              0.0f,
-                                                              1.0f,
-                                                              0.3f),
-                  std::make_unique<juce::AudioParameterFloat>("wetLevel",
-                                                              "Wet Level",
-                                                              0.0f,
-                                                              1.0f,
-                                                              0.5f),
-                  std::make_unique<juce::AudioParameterFloat>("dryLevel",
-                                                              "Dry Level",
-                                                              0.0f,
-                                                              1.0f,
-                                                              0.5f)}) {
+                 {std::make_unique<juce::AudioParameterFloat>("roomSize", "Room Size", 0.0f, 1.0f, 0.5f),
+                  std::make_unique<juce::AudioParameterFloat>("damping", "Damping", 0.0f, 1.0f, 0.3f),
+                  std::make_unique<juce::AudioParameterFloat>("wetLevel", "Wet Level", 0.0f, 1.0f, 0.5f),
+                  std::make_unique<juce::AudioParameterFloat>("dryLevel", "Dry Level", 0.0f, 1.0f, 0.5f)}) {
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {}
@@ -70,17 +54,15 @@ const juce::String AudioPluginAudioProcessor::getProgramName(int index) {
   juce::ignoreUnused(index);
   return {};
 }
-void AudioPluginAudioProcessor::changeProgramName(int index,
-                                                  const juce::String& newName) {
+void AudioPluginAudioProcessor::changeProgramName(int index, const juce::String& newName) {
   juce::ignoreUnused(index, newName);
 }
 
-void AudioPluginAudioProcessor::prepareToPlay(double sampleRate,
-                                              int samplesPerBlock) {
+void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
   juce::ignoreUnused(samplesPerBlock);
 
   // Initialize ToneGenerator (for testing)
-  toneGenerator.initialize(sampleRate, 440.0f);
+  // toneGenerator.initialize(sampleRate, 440.0f);
 
   // Initialize Reverb
   reverbParams.roomSize = *parameters.getRawParameterValue("roomSize");
@@ -97,8 +79,7 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate,
 
 void AudioPluginAudioProcessor::releaseResources() {}
 
-bool AudioPluginAudioProcessor::isBusesLayoutSupported(
-    const BusesLayout& layouts) const {
+bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const {
   if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono() &&
       layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
     return false;
@@ -124,8 +105,7 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(
 //   }
 // }
 
-void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
-                                             juce::MidiBuffer& midiMessages) {
+void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) {
   juce::ignoreUnused(midiMessages);
   juce::ScopedNoDenormals noDenormals;
 
@@ -148,7 +128,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
   reverb.setParameters(reverbParams);
 
   // Process tone generator (for testing)
-  toneGenerator.process(buffer);
+  // toneGenerator.process(buffer);
 
   // Apply reverb to the generated tone
   for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
@@ -156,12 +136,12 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     reverb.processMono(channelData, numSamples);
   }
 
-  // Update elapsed time and toggle tone
-  timeElapsed += blockDuration;
-  if (timeElapsed >= toggleInterval) {
-    toneGenerator.toggleNoteState();
-    timeElapsed = 0.0;
-  }
+  // Update elapsed time and toggle tone (for tone generator)
+  // timeElapsed += blockDuration;
+  // if (timeElapsed >= toggleInterval) {
+  //   toneGenerator.toggleNoteState();
+  //   timeElapsed = 0.0;
+  // }
 }
 
 bool AudioPluginAudioProcessor::hasEditor() const {
@@ -172,13 +152,11 @@ juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor() {
   return new AudioPluginAudioProcessorEditor(*this);
 }
 
-void AudioPluginAudioProcessor::getStateInformation(
-    juce::MemoryBlock& destData) {
+void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData) {
   juce::ignoreUnused(destData);
 }
 
-void AudioPluginAudioProcessor::setStateInformation(const void* data,
-                                                    int sizeInBytes) {
+void AudioPluginAudioProcessor::setStateInformation(const void* data, int sizeInBytes) {
   juce::ignoreUnused(data, sizeInBytes);
 }
 }  // namespace audio_plugin

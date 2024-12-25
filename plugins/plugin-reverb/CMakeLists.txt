@@ -10,11 +10,15 @@ set(_plugin_formats "VST3") # Default plugin formats
 if (BUILD_DESKTOP)
     # Add Standalone format for desktop test builds
     list(APPEND _plugin_formats "Standalone")
+    set(VST3_MANIFEST TRUE) # Create moduleinfo.json for VST3
 else()
     # Rely on installed JUCE inside x-compiler container
     find_package(JUCE CONFIG REQUIRED)
     # Disable LTO (Link-Time Optimization)
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
+    # Disable VST3_AUTO_MANIFEST (Required for ElkOS cross-compilation)
+    set(VST3_MANIFEST FALSE) 
+
 endif()
 
 juce_add_plugin(${PROJECT_NAME}
@@ -28,7 +32,7 @@ juce_add_plugin(${PROJECT_NAME}
     FORMATS ${_plugin_formats}
     # FORMATS Standalone VST3
     PRODUCT_NAME "TonalFlexReverb"
-    VST3_AUTO_MANIFEST FALSE
+    VST3_AUTO_MANIFEST ${VST3_MANIFEST}
 )
 
 target_sources(${PROJECT_NAME}
