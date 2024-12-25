@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(TemplatePlugin VERSION 0.0.1) # Required by JUCE
+project(TonalFlexReverb VERSION 0.0.1) # Required by JUCE
 
-set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/plugin-template")
+set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include/plugin-reverb")
 
 option(BUILD_DESKTOP "Also build Standalone" OFF) # cmake -B build -S . -DBUILD_DESKTOP=ON
 set(_plugin_formats "VST3") # Default plugin formats
@@ -10,25 +10,27 @@ set(_plugin_formats "VST3") # Default plugin formats
 if (BUILD_DESKTOP)
     # Add Standalone format for desktop test builds
     list(APPEND _plugin_formats "Standalone")
+    set(VST3_MANIFEST TRUE) # Create moduleinfo.json for VST3
 else()
     # Rely on installed JUCE inside x-compiler container
     find_package(JUCE CONFIG REQUIRED)
     # Disable LTO (Link-Time Optimization)
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
+    # Disable VST3_AUTO_MANIFEST (Required for ElkOS cross-compilation)
+    set(VST3_MANIFEST FALSE) 
 endif()
 
 juce_add_plugin(${PROJECT_NAME}
     COMPANY_NAME TonalFlex
-    PLUGIN_NAME "plugin-template"
+    PLUGIN_NAME "TonalFlexReverb"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
     PLUGIN_MANUFACTURER_CODE MCMP
     PLUGIN_CODE EXPL
     FORMATS ${_plugin_formats}
-    # FORMATS Standalone VST3
-    PRODUCT_NAME "plugin-template"
-    VST3_AUTO_MANIFEST FALSE
+    PRODUCT_NAME "TonalFlexReverb"
+    VST3_AUTO_MANIFEST ${VST3_MANIFEST}
 )
 
 target_sources(${PROJECT_NAME}
@@ -48,6 +50,13 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         juce::juce_audio_utils
+        juce::juce_audio_devices
+
+        # Additional modules
+        juce::juce_audio_processors
+        juce::juce_dsp
+        juce::juce_gui_basics
+
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
