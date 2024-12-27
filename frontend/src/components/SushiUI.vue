@@ -78,7 +78,14 @@
       const fetchPlugins = async () => {
         loading.value = true;
         try {
-          plugins.value = await pluginStore.fetchPlugins();
+          let fetchedPlugins = await pluginStore.fetchPlugins();
+
+          // Sort plugins: Move "main" to the top
+          plugins.value = fetchedPlugins.sort((a, b) => {
+            if (a.name.toLowerCase() === "main") return -1; // "main" goes to the top
+            if (b.name.toLowerCase() === "main") return 1;
+            return 0; // Keep other items in their order
+          });
         } catch (err) {
           error.value = (err as Error).message;
         } finally {
@@ -174,6 +181,10 @@
   .sushi-ui {
     width: 100vw;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the grid horizontally */
+    justify-content: flex-start;
   }
 
   .transport-controls-container{
@@ -194,12 +205,13 @@
   }
 
   .active-plugins-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Flexible column widths */
-  gap: 20px; /* Space between plugins */
-  grid-auto-flow: dense; /* Fill gaps created by varying heights */
-  justify-content: center; /* Center align the grid */
+  width:100vw;
   padding: 20px;
+  }
+
+  .plugin-container {
+    column-count: 2; /* Number of columns */
+    column-gap: 20px; /* Space between columns */
   }
 
   .plugin-box {
@@ -207,49 +219,46 @@
     border: 2px solid white;
     border-radius: 10px;
     padding: 15px;
-    width: 100%; /* Allow flexible width inside the grid */
-    max-width: 300px; /* Prevent overly large plugins */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: inline-block; /* Necessary for Masonry */
+    width: 100%; /* Ensure boxes span full column width */
+    margin-bottom: 20px; /* Space between rows */
   }
 
-.plugin-title {
-  margin-bottom: 10px;
-  font-size: 1.2em;
-  text-align: center;
-  color: #fff;
-}
+  .plugin-title {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    text-align: center;
+    color: #fff;
+  }
 
-.parameter {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
+  .parameter {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
 
-.parameter label {
-  margin-bottom: 5px;
-  font-size: 0.9em;
-  color: #ccc; /* Optional: Subtle color for labels */
-}
+  .parameter label {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #ccc; /* Optional: Subtle color for labels */
+  }
 
-.parameter input[type="range"] {
-  width: 100%;
-}
+  .parameter input[type="range"] {
+    width: 100%;
+  }
 
-.parameter span {
-  margin-top: 5px;
-  font-size: 0.8em;
-  color: #ddd; /* Optional: Subtle color for values */
-}
+  .parameter span {
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #ddd; /* Optional: Subtle color for values */
+  }
 
-.loading,
-.error {
-  text-align: center;
-  margin-top: 20px;
-  font-size: 1.2em;
-  color: #f88; /* Optional: Error text color */
-}
+  .loading,
+  .error {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #f88; /* Optional: Error text color */
+  }
   </style>
   

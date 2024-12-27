@@ -1,6 +1,5 @@
 <template>
   <div class="dashboard">
-    <h1>Sushi Dashboard</h1>
     <SushiUI />
   </div>
 </template>
@@ -20,7 +19,6 @@ export default defineComponent({
   width:100vw;
   height:100vh;
   font-family: Arial, sans-serif;
-  text-align: center;
   color: #333;
 }
 </style>
