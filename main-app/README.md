@@ -27,7 +27,9 @@ docker run --rm -it \
 ---
 
 # Ensure the container has the audio group
-RUN groupadd -g 29 audio && usermod -aG audio root
 
 ```
- docker system prune -a
+RUN groupadd -g 29 audio && usermod -aG audio root
+```
+
+---

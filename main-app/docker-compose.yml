@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   main_app:
     build:
@@ -25,6 +23,7 @@ services:
       - ./envoy/envoy.yml:/etc/envoy/envoy.yaml
     ports:
       - "8080:8080" # Expose Envoy port for external communication
+      - "9901:9901" # Expose Envoy admin port for debugging
 
 networks:
   grpc-network:
