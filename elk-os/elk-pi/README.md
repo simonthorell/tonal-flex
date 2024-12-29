@@ -81,7 +81,14 @@ scp tonalflex_reverb.json mind@elk-pi.local:~/config_files/
 ### Test Plugins
 
 ```shell
-$ sushi -r --multicore-processing=2 -c ~/config_files/tonalflex_reverb.json &
+# WITH Compatible RPi4 Audio ADC/DAC hat:
+sushi -r --multicore-processing=2 -c ~/config_files/tonalflex_reverb.json &
+
+# WITHOUT Compatible RPi4 Audio ADC/DAC hat:
+sushi --dummy --multicore-processing=2 -c ~/config_files/tonalflex_reverb.json &
+
+# Kill Running Sushi Instances
+pkill sushi
 ```
 
 _Note the & at the end - this means the process starts in the background. When you later need to stop it, you type $ pkill sushi._
