@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  main_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: main_app
+    networks:
+      - grpc-network
+    devices:
+      - "/dev/snd:/dev/snd" # Share host audio devices
+    group_add:
+      - "audio" # Add container to audio group for permissions
+    ports:
+      - "50051:50051" # Expose gRPC server ports for external communication
+      - "51051:51051"
+
+  envoy:
+    image: envoyproxy/envoy:v1.20-latest
+    container_name: envoy
+    networks:
+      - grpc-network
+    volumes:
+      - ./envoy/envoy.yml:/etc/envoy/envoy.yaml
+    ports:
+      - "8080:8080" # Expose Envoy port for external communication
+
+networks:
+  grpc-network:
+    driver: bridge

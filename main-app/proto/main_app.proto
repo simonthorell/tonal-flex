@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package main_app;
+
+// MainApp Service for managing the application.
+service MainApp {
+  // Check if the server is connected.
+  rpc CheckConnection (Empty) returns (ConnectionStatus);
+
+  // Fetch all configuration file names.
+  rpc FetchConfigFiles (Empty) returns (ConfigList);
+
+  // Use a configuration file to start a process.
+  rpc UseConfigFile (ConfigName) returns (Status);
+}
+
+// Represents an empty request or response.
+message Empty {}
+
+// Represents the connection status of the server.
+message ConnectionStatus {
+  string message = 1;
+  bool connected = 2;
+}
+
+// Represents a list of configuration file names.
+message ConfigList {
+  repeated string configs = 1;
+}
+
+// Represents a configuration file name.
+message ConfigName {
+  string name = 1;
+}
+
+// Represents the status of an operation.
+message Status {
+  string message = 1;
+  bool success = 2;
+}
