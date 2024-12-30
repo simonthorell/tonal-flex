@@ -19,6 +19,7 @@ add_executable(main_app
     src/server.cpp
     src/sendConfigNames.cpp
     src/startSushi.cpp
+    src/environmentUtils.cpp
     proto/main_app.pb.cc
     proto/main_app.grpc.pb.cc
 )

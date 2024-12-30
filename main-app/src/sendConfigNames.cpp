@@ -3,7 +3,7 @@
 #include <iostream>
 
 namespace fs = std::filesystem;
-const std::string CONFIG_PATH = "../config/";
+const std::string CONFIG_PATH = std::filesystem::current_path().string() + "/config/";
 
 std::vector<std::string> fetchConfigNames() {
     std::vector<std::string> configNames;

@@ -1,11 +1,15 @@
 #include "startSushi.h"
+#include "environmentUtils.h"
 #include <cstdlib>
 #include <iostream>
 #include <filesystem>
+#include <cstdlib>
+#include <iostream>
+#include <string>
 
 namespace fs = std::filesystem;
-const std::string PLUGIN_BASE_PATH = "../plugins/";
-const std::string CONFIG_PATH = "../config/";
+const std::string PLUGIN_BASE_PATH = std::filesystem::current_path().string() + "/plugins/";
+const std::string CONFIG_PATH = std::filesystem::current_path().string() + "/config/";
 
 bool startSushi(const std::string& configName) {
     try {
@@ -20,8 +24,14 @@ bool startSushi(const std::string& configName) {
         }
 
         // Build the Sushi command
-        std::string command = "../sushi/Sushi-x86_64.AppImage -j --connect-ports --base-plugin-path=" + fullPluginPath + " -c " + fullConfigPath;
-        std::cout << "Executing command: " << command << std::endl;
+        std::string sushiPath = fs::absolute(std::filesystem::current_path() / "sushi/Sushi-x86_64.AppImage").string();
+        std::string platform = getEnvironmentVariable("PLATFORM");
+        std::string sushiFlag = (platform == "mac_arm64") ? "-a" : "-j";
+        std::string command = sushiPath + " " + sushiFlag +
+                              " --connect-ports --base-plugin-path=" + fullPluginPath +
+                              " -c " + fullConfigPath;
+
+        std::cout << "Executing Sushi command: " << command << std::endl;
 
         // Execute the command
         int result = std::system(command.c_str());

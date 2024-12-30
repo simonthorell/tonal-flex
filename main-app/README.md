@@ -1,3 +1,31 @@
+## To build container on Linux_x86
+
+Build container
+```bash
+docker compose build
+```
+
+Run container
+```bash
+docker compose up
+```
+
+---
+
+## To build container on MAC_amr64 - not tested!
+
+Build container
+```bash
+PLATFORM=mac_arm64 docker compose build
+```
+
+Run container
+```bash
+docker compose up
+```
+
+---
+
 ## Rebuild proto files from main_app.proto
 
 use command to create proto files for cpp:
@@ -27,9 +55,8 @@ docker run --rm -it \
 ---
 
 # Ensure the container has the audio group
-
-```
 RUN groupadd -g 29 audio && usermod -aG audio root
-```
 
----
+```
+ docker system prune -a
+```
