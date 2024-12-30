@@ -26,7 +26,7 @@ bool startSushi(const std::string& configName) {
         // Build the Sushi command
         std::string sushiPath = fs::absolute(std::filesystem::current_path() / "sushi/Sushi-x86_64.AppImage").string();
         std::string platform = getEnvironmentVariable("PLATFORM");
-        std::string sushiFlag = (platform == "mac_arm64") ? "-a" : "-j";
+        std::string sushiFlag = (platform == "mac") ? "-a" : "-j";
         std::string command = sushiPath + " " + sushiFlag +
                               " --connect-ports --base-plugin-path=" + fullPluginPath +
                               " -c " + fullConfigPath;

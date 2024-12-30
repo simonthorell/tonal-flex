@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - PLATFORM=${PLATFORM:-linux_x86} # Pass PLATFORM as a build argument
+        - PLATFORM=${PLATFORM:-linux} # Pass PLATFORM as a build argument
     container_name: main_app
     networks:
       - grpc-network
@@ -14,7 +14,7 @@ services:
     group_add:
       - "audio" # For Linux audio permissions (ignored on macOS)
     environment:
-      - PLATFORM=${PLATFORM:-linux_x86} # Pass PLATFORM as an environment variable for runtime
+      - PLATFORM=${PLATFORM:-linux} # Pass PLATFORM as an environment variable for runtime
       - JACK_NO_AUDIO_RESERVATION=1
     volumes:
       - /tmp/jack:/tmp/jack # For JACK socket sharing on macOS

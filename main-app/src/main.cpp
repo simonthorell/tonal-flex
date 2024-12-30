@@ -22,9 +22,9 @@ void startJACK() {
     std::string platform = getEnvironmentVariable("PLATFORM");
     std::string command;
 
-    if (platform == "mac_arm64") {
+    if (platform == "mac") {
         command = "jackd -R -d coreaudio";
-    } else if (platform == "linux_x86") {
+    } else if (platform == "linux") {
         command = "jackd -v -R -d alsa -d hw:0,0";
     } else {
         std::cerr << "Unsupported platform: " << platform << std::endl;

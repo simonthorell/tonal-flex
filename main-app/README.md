@@ -12,11 +12,11 @@ docker compose up
 
 ---
 
-## Build container on MAC_amr64 - not tested!
+## Build container on MAC - not tested!
 
 Build container
 ```bash
-PLATFORM=mac_arm64 docker compose build
+PLATFORM=mac docker compose build
 ```
 
 Run container
