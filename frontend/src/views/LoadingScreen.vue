@@ -1,8 +1,10 @@
 <template>
-  <div class="loading-screen">
-    <img src="@/assets/logo.png" alt="Logo" class="logo" />
-    <div class="spinner"></div>
-    <p>Connecting</p>
+  <div class="screen-container">
+    <div class="loading-screen">
+      <img src="@/assets/logo.png" alt="Logo" class="logo" />
+      <div class="spinner"></div>
+      <p>Connecting</p>
+    </div>
   </div>
 </template>
 
@@ -17,6 +19,12 @@ export default {
 </script>
 
 <style scoped>
+.screen-container{
+  width:100vw;
+  height: 100vh;
+  background-color: #131313;
+}
+
 .loading-screen {
   display: flex;
   flex-direction: column;

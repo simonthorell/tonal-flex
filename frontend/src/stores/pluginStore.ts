@@ -5,6 +5,7 @@ import {
     TransportControllerClient,
     AudioRoutingControllerClient,
     ProgramControllerClient,
+    NotificationControllerClient,
     AudioGraphControllerClient,
 } from "@/proto/sushi_rpc.client";
 import {
@@ -17,7 +18,16 @@ import {
     GenericFloatValue,
     PlayingMode,
     PlayingMode_Mode,
+    ParameterNotificationBlocklist,
 } from "@/proto/sushi_rpc";
+import {
+    Empty,
+    ConnectionStatus,
+    ConfigList,
+    ConfigName,
+    Status,
+} from "@/proto/main_app";
+import { MainAppClient } from "@/proto/main_app.client"; 
 import type { RpcInterceptor, RpcOptions, UnaryCall } from "@protobuf-ts/runtime-rpc";
 
 const addTeHeaderInterceptor: RpcInterceptor = {
@@ -33,16 +43,44 @@ const addTeHeaderInterceptor: RpcInterceptor = {
     },
 };
 
-const transport = new GrpcWebFetchTransport({
-    baseUrl: "http://localhost:8080",
+const sushiTransport = new GrpcWebFetchTransport({
+    baseUrl: "http://localhost:8080/sushi",
     interceptors: [addTeHeaderInterceptor],
 });
 
-const systemClient = new SystemControllerClient(transport);
-const parameterClient = new ParameterControllerClient(transport);
-const transportClient = new TransportControllerClient(transport);
-const audioRoutingClient = new AudioRoutingControllerClient(transport);
-const audioGraphClient = new AudioGraphControllerClient(transport);
+const mainAppTransport = new GrpcWebFetchTransport({
+    baseUrl: "http://localhost:8080/main-app",
+    interceptors: [addTeHeaderInterceptor],
+});
+
+const notificationClient = new NotificationControllerClient(sushiTransport);
+const systemClient = new SystemControllerClient(sushiTransport);
+const parameterClient = new ParameterControllerClient(sushiTransport);
+const transportClient = new TransportControllerClient(sushiTransport);
+const audioRoutingClient = new AudioRoutingControllerClient(sushiTransport);
+const audioGraphClient = new AudioGraphControllerClient(sushiTransport);
+const mainAppClient = new MainAppClient(mainAppTransport);
+
+// Stream transport changes
+export const streamTransportChanges = async (onUpdate: (update: any) => void) => {
+    const call = notificationClient.subscribeToTransportChanges(GenericVoidValue.create());
+
+    for await (const update of call.responses) {
+        onUpdate(update); // Handle the update in real-time
+    }
+};
+
+// Stream parameter updates
+export const streamParameterUpdates = async (
+    blocklist: ParameterNotificationBlocklist,
+    onUpdate: (update: any) => void
+) => {
+    const call = notificationClient.subscribeToParameterUpdates(blocklist);
+
+    for await (const update of call.responses) {
+        onUpdate(update); // Handle the update in real-time
+    }
+};
 
 // Fetch active plugins and their parameters
 const fetchPlugins = async (): Promise<
@@ -147,6 +185,26 @@ const updateBpm = async (newBpm: number): Promise<void> => {
     await transportClient.setTempo(request);
 };
 
+// Fetch connection status
+const fetchConnectionStatus = async (): Promise<{ message: string; connected: boolean }> => {
+    const response = await mainAppClient.checkConnection(Empty.create());
+    return response.response;
+};
+
+// Fetch available configurations
+const fetchConfigList = async (): Promise<string[]> => {
+    const response = await mainAppClient.fetchConfigFiles(Empty.create());
+    console.log("Raw response from fetchConfigFiles:", response.response);
+    return response.response.configs || [];
+  };
+
+// Load a specific configuration
+const loadConfig = async (configName: string): Promise<{ message: string; success: boolean }> => {
+    const request = ConfigName.create({ name: configName });
+    const response = await mainAppClient.useConfigFile(request);
+    return response.response;
+};
+
 const pluginStore = {
     fetchPlugins,
     fetchTransportSettings,
@@ -155,6 +213,11 @@ const pluginStore = {
     fetchAudioConnections,
     connectChannel,
     updateBpm,
+    fetchConnectionStatus,
+    fetchConfigList,
+    loadConfig,
+    streamTransportChanges,
+    streamParameterUpdates,
 };
 
 export default pluginStore;

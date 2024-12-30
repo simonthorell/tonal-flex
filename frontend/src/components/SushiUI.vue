@@ -1,6 +1,6 @@
 <template>
   <div class="sushi-ui">
-    <div class="transport-ccontrols-ontainer">
+    <div class="transport-controls-container">
       <h2>Transport Controls</h2>
       <div v-if="loadingTransport" class="loading">Loading Transport Settings...</div>
       <div v-else-if="errorTransport" class="error">{{ errorTransport }}</div>
@@ -48,135 +48,154 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
+<script lang="ts">
+import { defineComponent, ref, onMounted, onUnmounted } from "vue";
+import pluginStore from "@/stores/pluginStore";
+import { ParameterNotificationBlocklist, ParameterUpdate, PropertyIdentifier, PropertyNotificationBlocklist } from "@/proto/sushi_rpc";
 
-  
-  <script lang="ts">
-  import { defineComponent, ref, onMounted } from "vue";
-  import pluginStore from "@/stores/pluginStore";
+export default defineComponent({
+  name: "SushiUI",
+  setup() {
+    const bpm = ref<number>(120);
+    const playingMode = ref<string>("Stopped");
+    const errorTransport = ref<string | null>(null);
+    const loadingTransport = ref(false);
 
-  export default defineComponent({
-    name: "SushiUI",
-    setup() {
-      const bpm = ref<number>(120); // Default BPM
-      const playingMode = ref<string>("Stopped");
-      const errorTransport = ref<string | null>(null);
-      const loadingTransport = ref(false);
+    const audioConnections = ref<any[]>([]);
+    const errorChannels = ref<string | null>(null);
+    const loadingChannels = ref(false);
 
-      const audioConnections = ref<any[]>([]);
-      const errorChannels = ref<string | null>(null);
-      const loadingChannels = ref(false);
+    const plugins = ref<any[]>([]);
+    const error = ref<string | null>(null);
+    const loading = ref(false);
 
-      const plugins = ref<any[]>([]);
-      const error = ref<string | null>(null);
-      const loading = ref(false);
+    const transportSubscription = ref<any | null>(null);
+    const parameterSubscription = ref<any | null>(null);
 
-      // Fetch Plugins
-      const fetchPlugins = async () => {
-        loading.value = true;
-        try {
-          let fetchedPlugins = await pluginStore.fetchPlugins();
+    const fetchPlugins = async () => {
+      loading.value = true;
+      try {
+        const fetchedPlugins = await pluginStore.fetchPlugins();
+        plugins.value = fetchedPlugins.sort((a, b) => {
+          if (a.name.toLowerCase() === "main") return -1;
+          if (b.name.toLowerCase() === "main") return 1;
+          return 0;
+        });
+      } catch (err) {
+        error.value = (err as Error).message;
+      } finally {
+        loading.value = false;
+      }
+    };
 
-          // Sort plugins: Move "main" to the top
-          plugins.value = fetchedPlugins.sort((a, b) => {
-            if (a.name.toLowerCase() === "main") return -1; // "main" goes to the top
-            if (b.name.toLowerCase() === "main") return 1;
-            return 0; // Keep other items in their order
-          });
-        } catch (err) {
-          error.value = (err as Error).message;
-        } finally {
-          loading.value = false;
-        }
-      };
+    const updateParam = async (pluginId: number, paramId: number, value: number) => {
+      try {
+        await pluginStore.updateParameter(
+          { processorId: pluginId, parameterId: paramId },
+          value
+        );
+      } catch (err) {
+        console.error("Failed to update parameter:", err);
+      }
+    };
 
+    const fetchTransport = async () => {
+      loadingTransport.value = true;
+      try {
+        const { bpm: fetchedBpm, playingMode: fetchedPlayingMode } =
+          await pluginStore.fetchTransportSettings();
+        bpm.value = fetchedBpm;
+        playingMode.value = fetchedPlayingMode;
+      } catch (err) {
+        errorTransport.value = (err as Error).message;
+      } finally {
+        loadingTransport.value = false;
+      }
+    };
 
-      const updateParam = async (pluginId: number, paramId: number, value: number) => {
-        try {
-          await pluginStore.updateParameter(
-            {
-              processorId: pluginId,
-              parameterId: paramId,
-            },
-            value
-          );
-        } catch (err) {
-          console.error("Failed to update parameter:", err);
-        }
-      };
+    const updateBpm = async () => {
+      try {
+        await pluginStore.updateBpm(bpm.value);
+      } catch (err) {
+        console.error("Failed to update BPM:", err);
+      }
+    };
 
-      // Fetch Transport Settings
-      const fetchTransport = async () => {
-        loadingTransport.value = true;
-        try {
-          const { bpm: fetchedBpm, playingMode: fetchedPlayingMode } = await pluginStore.fetchTransportSettings();
-          bpm.value = fetchedBpm;
-          playingMode.value = fetchedPlayingMode;
-        } catch (err) {
-          errorTransport.value = (err as Error).message;
-        } finally {
-          loadingTransport.value = false;
-        }
-      };
+    const fetchChannels = async () => {
+      loadingChannels.value = true;
+      try {
+        audioConnections.value = await pluginStore.fetchAudioConnections();
+      } catch (err) {
+        errorChannels.value = (err as Error).message;
+      } finally {
+        loadingChannels.value = false;
+      }
+    };
 
-      const updateBpm = async () => {
-        try {
-          await pluginStore.updateBpm(bpm.value);
-        } catch (err) {
-          console.error("Failed to update BPM:", err);
-        }
-      };
+    const connectNewChannel = async (trackId: number) => {
+      try {
+        await pluginStore.connectChannel(trackId, 1);
+        await fetchChannels();
+      } catch (err) {
+        console.error("Failed to connect channel:", err);
+      }
+    };
 
-      const fetchChannels = async () => {
-        loadingChannels.value = true;
-        try {
-          audioConnections.value = await pluginStore.fetchAudioConnections();
-        } catch (err) {
-          errorChannels.value = (err as Error).message;
-        } finally {
-          loadingChannels.value = false;
-        }
-      };
-
-      const connectNewChannel = async (trackId: number) => {
-        try {
-          await pluginStore.connectChannel(trackId, 1); // Example: connect to engine channel 1
-          await fetchChannels(); // Refresh connections
-        } catch (err) {
-          console.error("Failed to connect channel:", err);
-        }
-      };
-
-      onMounted(() => {
-        fetchTransport();
-        fetchChannels();
-        fetchPlugins();
+    const subscribeToTransportChanges = async () => {
+      transportSubscription.value = pluginStore.streamTransportChanges((update) => {
+        bpm.value = update.bpm;
+        playingMode.value = update.isPlaying ? "Playing" : "Stopped";
       });
+    };
 
-      return {
-        bpm,
-        playingMode,
-        errorTransport,
-        loadingTransport,
-        audioConnections,
-        errorChannels,
-        loadingChannels,
-        updateBpm,
-        connectNewChannel,
-        plugins,
-        error,
-        loading,
-        updateParam,
-      };
-    },
-  });
-  </script>
+    const subscribeToParameterUpdates = async () => {
+        // Initialize the blocklist with an empty array of parameters
+        const blocklist: ParameterNotificationBlocklist = {
+            parameters: [], // No parameters are blocked initially
+        };
+
+        await pluginStore.streamParameterUpdates(blocklist, (update) => {
+            console.log("Parameter Update:", update);
+            // Handle updates in your application as needed
+        });
+    };
 
 
-  
+    onMounted(() => {
+      fetchTransport();
+      fetchChannels();
+      fetchPlugins();
+      subscribeToTransportChanges();
+      subscribeToParameterUpdates();
+    });
+
+    onUnmounted(() => {
+      transportSubscription.value?.cancel();
+      parameterSubscription.value?.cancel();
+    });
+
+    return {
+      bpm,
+      playingMode,
+      errorTransport,
+      loadingTransport,
+      audioConnections,
+      errorChannels,
+      loadingChannels,
+      updateBpm,
+      connectNewChannel,
+      plugins,
+      error,
+      loading,
+      updateParam,
+    };
+  },
+});
+</script>
+
   <style scoped>
   .sushi-ui {
     width: 100vw;
@@ -185,6 +204,7 @@
     flex-direction: column;
     align-items: center; /* Center the grid horizontally */
     justify-content: flex-start;
+    background-color: #131313;
   }
 
   .transport-controls-container{
