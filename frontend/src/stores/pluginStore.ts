@@ -12,6 +12,8 @@ import {
     GenericVoidValue,
     ParameterIdentifier,
     ProcessorIdentifier,
+    ParameterUpdate,
+    TransportUpdate,
     TrackIdentifier,
     AudioConnection,
     ParameterValue,
@@ -53,7 +55,18 @@ const mainAppTransport = new GrpcWebFetchTransport({
     interceptors: [addTeHeaderInterceptor],
 });
 
-const notificationClient = new NotificationControllerClient(sushiTransport);
+const parameterStreamTransport = new GrpcWebFetchTransport({
+    baseUrl: "http://localhost:8080/sushi",
+    interceptors: [addTeHeaderInterceptor],
+});
+
+const transportStreamTransport = new GrpcWebFetchTransport({
+    baseUrl: "http://localhost:8080/sushi",
+    interceptors: [addTeHeaderInterceptor],
+});
+
+const parameterNotificationClient = new NotificationControllerClient(sushiTransport);
+const transportNotificationClient = new NotificationControllerClient(sushiTransport);
 const systemClient = new SystemControllerClient(sushiTransport);
 const parameterClient = new ParameterControllerClient(sushiTransport);
 const transportClient = new TransportControllerClient(sushiTransport);
@@ -61,25 +74,50 @@ const audioRoutingClient = new AudioRoutingControllerClient(sushiTransport);
 const audioGraphClient = new AudioGraphControllerClient(sushiTransport);
 const mainAppClient = new MainAppClient(mainAppTransport);
 
-// Stream transport changes
-export const streamTransportChanges = async (onUpdate: (update: any) => void) => {
-    const call = notificationClient.subscribeToTransportChanges(GenericVoidValue.create());
+/**
+ * Stream live parameter updates.
+ * @param onUpdate Callback for handling each parameter update.
+ * @param onError Callback for handling errors in the stream.
+ * @returns A function to stop the stream.
+ */
+const streamParameterUpdates = (
+    onUpdate: (update: ParameterUpdate) => void,
+    onError: (error: any) => void
+): (() => void) => {
+    const stream = parameterNotificationClient.subscribeToParameterUpdates(ParameterNotificationBlocklist.create());
 
-    for await (const update of call.responses) {
-        onUpdate(update); // Handle the update in real-time
-    }
+    // Handle incoming messages and errors
+    const messageSubscription = stream.responses.onMessage(onUpdate);
+    const errorSubscription = stream.responses.onError(onError);
+
+    // Return a function to clean up the subscriptions
+    return () => {
+        messageSubscription();
+        errorSubscription();
+    };
 };
 
-// Stream parameter updates
-export const streamParameterUpdates = async (
-    blocklist: ParameterNotificationBlocklist,
-    onUpdate: (update: any) => void
-) => {
-    const call = notificationClient.subscribeToParameterUpdates(blocklist);
+/**
+ * Stream live BPM updates.
+ * @param onUpdate Callback for handling each BPM update.
+ * @param onError Callback for handling errors in the stream.
+ * @returns A function to stop the stream.
+ */
+const streamBpmUpdates = (
+    onUpdate: (update: TransportUpdate) => void,
+    onError: (error: any) => void
+): (() => void) => {
+    const stream = transportNotificationClient.subscribeToTransportChanges(GenericVoidValue.create());
 
-    for await (const update of call.responses) {
-        onUpdate(update); // Handle the update in real-time
-    }
+    // Handle incoming messages and errors
+    const messageSubscription = stream.responses.onMessage(onUpdate);
+    const errorSubscription = stream.responses.onError(onError);
+
+    // Return a function to clean up the subscriptions
+    return () => {
+        messageSubscription();
+        errorSubscription();
+    };
 };
 
 // Fetch active plugins and their parameters
@@ -216,8 +254,8 @@ const pluginStore = {
     fetchConnectionStatus,
     fetchConfigList,
     loadConfig,
-    streamTransportChanges,
     streamParameterUpdates,
+    streamBpmUpdates,
 };
 
 export default pluginStore;

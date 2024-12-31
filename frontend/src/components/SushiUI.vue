@@ -13,20 +13,6 @@
       </div>
     </div>
 
-    <div class="channel-configuration-container">
-      <h2>Channel Configuration</h2>
-      <div v-if="loadingChannels" class="loading">Loading Channels...</div>
-      <div v-else-if="errorChannels" class="error">{{ errorChannels }}</div>
-      <div v-else class="channels">
-        <h3>Input Channels</h3>
-        <div v-for="connection in audioConnections" :key="connection.engine_channel" class="connection">
-          <span>Track: {{ connection.track.id }}</span>
-          <span>Engine Channel: {{ connection.engine_channel }}</span>
-          <button @click="connectNewChannel(connection.track.id)">Connect New</button>
-        </div>
-      </div>
-    </div>
-
     <div class="active-plugins-container">
       <div v-if="loading" class="loading">Loading Plugins...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
@@ -54,7 +40,6 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted } from "vue";
 import pluginStore from "@/stores/pluginStore";
-import { ParameterNotificationBlocklist, ParameterUpdate, PropertyIdentifier, PropertyNotificationBlocklist } from "@/proto/sushi_rpc";
 
 export default defineComponent({
   name: "SushiUI",
@@ -64,17 +49,14 @@ export default defineComponent({
     const errorTransport = ref<string | null>(null);
     const loadingTransport = ref(false);
 
-    const audioConnections = ref<any[]>([]);
-    const errorChannels = ref<string | null>(null);
-    const loadingChannels = ref(false);
-
     const plugins = ref<any[]>([]);
     const error = ref<string | null>(null);
     const loading = ref(false);
 
-    const transportSubscription = ref<any | null>(null);
-    const parameterSubscription = ref<any | null>(null);
+    let stopTransportStream: (() => void) | null = null;
+    let stopParameterStream: (() => void) | null = null;
 
+    // Fetch plugins
     const fetchPlugins = async () => {
       loading.value = true;
       try {
@@ -91,6 +73,7 @@ export default defineComponent({
       }
     };
 
+    // Update parameter
     const updateParam = async (pluginId: number, paramId: number, value: number) => {
       try {
         await pluginStore.updateParameter(
@@ -102,6 +85,7 @@ export default defineComponent({
       }
     };
 
+    // Fetch transport settings
     const fetchTransport = async () => {
       loadingTransport.value = true;
       try {
@@ -116,6 +100,7 @@ export default defineComponent({
       }
     };
 
+    // Update BPM
     const updateBpm = async () => {
       try {
         await pluginStore.updateBpm(bpm.value);
@@ -124,57 +109,51 @@ export default defineComponent({
       }
     };
 
-    const fetchChannels = async () => {
-      loadingChannels.value = true;
-      try {
-        audioConnections.value = await pluginStore.fetchAudioConnections();
-      } catch (err) {
-        errorChannels.value = (err as Error).message;
-      } finally {
-        loadingChannels.value = false;
-      }
+    // Stream transport updates
+    const subscribeToTransportChanges = () => {
+      stopTransportStream = pluginStore.streamBpmUpdates(
+        (update) => {
+          if (update.transport?.oneofKind === "tempo") {
+            bpm.value = update.transport.tempo;
+          }
+          if (update.transport?.oneofKind === "playingMode") {
+            playingMode.value = update.transport.playingMode.mode === 2 ? "Playing" : "Stopped"; // Assuming mode 2 is playing.
+          }
+        },
+        (error) => {
+          console.error("Transport stream error:", error);
+        }
+      );
     };
 
-    const connectNewChannel = async (trackId: number) => {
-      try {
-        await pluginStore.connectChannel(trackId, 1);
-        await fetchChannels();
-      } catch (err) {
-        console.error("Failed to connect channel:", err);
-      }
+    // Stream parameter updates
+    const subscribeToParameterUpdates = () => {
+      stopParameterStream = pluginStore.streamParameterUpdates(
+        (update) => {
+          const plugin = plugins.value.find((p) => p.id === update.parameter?.processorId);
+          if (plugin) {
+            const param = plugin.parameters.find((p: any) => p.id === update.parameter?.parameterId);
+            if (param) {
+              param.value = update.normalizedValue || param.value;
+            }
+          }
+        },
+        (error) => {
+          console.error("Parameter stream error:", error);
+        }
+      );
     };
-
-    const subscribeToTransportChanges = async () => {
-      transportSubscription.value = pluginStore.streamTransportChanges((update) => {
-        bpm.value = update.bpm;
-        playingMode.value = update.isPlaying ? "Playing" : "Stopped";
-      });
-    };
-
-    const subscribeToParameterUpdates = async () => {
-        // Initialize the blocklist with an empty array of parameters
-        const blocklist: ParameterNotificationBlocklist = {
-            parameters: [], // No parameters are blocked initially
-        };
-
-        await pluginStore.streamParameterUpdates(blocklist, (update) => {
-            console.log("Parameter Update:", update);
-            // Handle updates in your application as needed
-        });
-    };
-
 
     onMounted(() => {
       fetchTransport();
-      fetchChannels();
       fetchPlugins();
       subscribeToTransportChanges();
       subscribeToParameterUpdates();
     });
 
     onUnmounted(() => {
-      transportSubscription.value?.cancel();
-      parameterSubscription.value?.cancel();
+      stopTransportStream?.();
+      stopParameterStream?.();
     });
 
     return {
@@ -182,103 +161,86 @@ export default defineComponent({
       playingMode,
       errorTransport,
       loadingTransport,
-      audioConnections,
-      errorChannels,
-      loadingChannels,
-      updateBpm,
-      connectNewChannel,
       plugins,
       error,
       loading,
+      updateBpm,
       updateParam,
     };
   },
 });
 </script>
 
-  <style scoped>
-  .sushi-ui {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center the grid horizontally */
-    justify-content: flex-start;
-    background-color: #131313;
-  }
+<style scoped>
+.sushi-ui {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #131313;
+}
 
-  .transport-controls-container{
-    width: 100wv;
-  }
+.transport-controls-container {
+  width: 100%;
+  margin-bottom: 20px;
+}
 
-  .channel-configuration-container{
-    width: 100wv;
-  }
-
-  .connection {
-    display: flex;
-    align-items: center;
-  }
-
-  label {
-    margin-right: 10px;
-  }
-
-  .active-plugins-container {
-  width:100vw;
+.active-plugins-container {
+  width: 100%;
   padding: 20px;
-  }
+}
 
-  .plugin-container {
-    column-count: 2; /* Number of columns */
-    column-gap: 20px; /* Space between columns */
-  }
+.plugin-container {
+  column-count: 2;
+  column-gap: 20px;
+}
 
-  .plugin-box {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 2px solid white;
-    border-radius: 10px;
-    padding: 15px;
-    display: inline-block; /* Necessary for Masonry */
-    width: 100%; /* Ensure boxes span full column width */
-    margin-bottom: 20px; /* Space between rows */
-  }
+.plugin-box {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid white;
+  border-radius: 10px;
+  padding: 15px;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 20px;
+}
 
-  .plugin-title {
-    margin-bottom: 10px;
-    font-size: 1.2em;
-    text-align: center;
-    color: #fff;
-  }
+.plugin-title {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  text-align: center;
+  color: #fff;
+}
 
-  .parameter {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
+.parameter {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
 
-  .parameter label {
-    margin-bottom: 5px;
-    font-size: 0.9em;
-    color: #ccc; /* Optional: Subtle color for labels */
-  }
+.parameter label {
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #ccc;
+}
 
-  .parameter input[type="range"] {
-    width: 100%;
-  }
+.parameter input[type="range"] {
+  width: 100%;
+}
 
-  .parameter span {
-    margin-top: 5px;
-    font-size: 0.8em;
-    color: #ddd; /* Optional: Subtle color for values */
-  }
+.parameter span {
+  margin-top: 5px;
+  font-size: 0.8em;
+  color: #ddd;
+}
 
-  .loading,
-  .error {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 1.2em;
-    color: #f88; /* Optional: Error text color */
-  }
-  </style>
-  
+.loading,
+.error {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1.2em;
+  color: #f88;
+}
+</style>
