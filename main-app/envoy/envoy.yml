@@ -41,6 +41,8 @@ static_resources:
                           route:
                             cluster: sushi_service
                             prefix_rewrite: "/"
+                            timeout: 0s
+                            
                 http_filters:
                   - name: envoy.filters.http.grpc_web
                   - name: envoy.filters.http.cors
@@ -70,7 +72,7 @@ static_resources:
                       address: main_app
                       port_value: 50051
     - name: sushi_service
-      connect_timeout: 1.0s
+      connect_timeout: 0.25s
       type: LOGICAL_DNS
       lb_policy: ROUND_ROBIN
       typed_extension_protocol_options:
