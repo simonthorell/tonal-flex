@@ -9,6 +9,9 @@
     <div class="sushi-container">
       <SushiUI />
     </div>
+    <div class="synth-overlay">
+      <Synth />
+    </div>
   </div>
 </template>
 
@@ -17,10 +20,11 @@ import { defineComponent, ref } from "vue";
 import Header from "@/components/dashboardHeader.vue";
 import SushiUI from "@/components/SushiUI.vue";
 import MainAppUI from "@/components/MainAppUI.vue";
+import Synth from "@/components/VirtualSynth.vue"
 
 export default defineComponent({
   name: "Dashboard",
-  components: { Header, SushiUI, MainAppUI },
+  components: { Header, SushiUI, MainAppUI, Synth },
   setup() {
 
     const handleConfigLoad = () => {
@@ -38,6 +42,8 @@ export default defineComponent({
 .dashboard {
   width:100vw;
   height:100vh;
+  display: flex;
+  flex-direction: column;
   font-family: Arial, sans-serif;
   color: #333;
 }
@@ -46,6 +52,9 @@ export default defineComponent({
   width: 100vw;
   height: 50px;
   position: fixed;
+  top: 0;
+  z-index: 1000; /* Ensure it stays on top */
+  background-color: #1c1c1c;
 }
 
 .main-app-container{
@@ -60,5 +69,12 @@ export default defineComponent({
 .sush-container{
   width: 100vw;
 
+}
+
+.virtual-synth{
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 1000; /* Ensure it stays on top of other content */
 }
 </style>
