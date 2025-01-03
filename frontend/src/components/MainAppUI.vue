@@ -31,7 +31,7 @@
   
   <script lang="ts">
   import { defineComponent, ref, onMounted } from "vue";
-  import mainAppStore from "@/stores/pluginStore";
+  import mainAppStore from "@/stores/mainAppStore";
   
   export default defineComponent({
     name: "MainAppUI",

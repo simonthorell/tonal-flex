@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import Header from "@/components/dashboardHeader.vue";
 import SushiUI from "@/components/SushiUI.vue";
 import MainAppUI from "@/components/MainAppUI.vue";
@@ -21,6 +21,16 @@ import MainAppUI from "@/components/MainAppUI.vue";
 export default defineComponent({
   name: "Dashboard",
   components: { Header, SushiUI, MainAppUI },
+  setup() {
+
+    const handleConfigLoad = () => {
+      
+    };
+
+    return {
+      handleConfigLoad,
+    };
+  },
 });
 </script>
 
@@ -49,6 +59,6 @@ export default defineComponent({
 
 .sush-container{
   width: 100vw;
-  
+
 }
 </style>

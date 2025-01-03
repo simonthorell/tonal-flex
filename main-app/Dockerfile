@@ -4,6 +4,9 @@ FROM ubuntu:22.04 AS builder
 # Build-time argument for platform selection (default: linux_x86)
 ARG PLATFORM=linux_x86
 
+# Set a faster Ubuntu mirror
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror.math.princeton.edu/pub/ubuntu/|g' /etc/apt/sources.list
+
 # Install necessary tools and dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -16,8 +19,10 @@ RUN apt-get update && apt-get install -y \
     libprotobuf-dev \
     protobuf-compiler \
     libfuse2 \
+    libboost-filesystem-dev \
+    libboost-program-options-dev \
+    libboost-system-dev \
     && apt-get clean
-
 
 # Install gRPC and Protobuf
 RUN git clone --recurse-submodules -b v1.57.0 https://github.com/grpc/grpc.git /grpc && \
@@ -44,6 +49,9 @@ RUN mkdir -p build && cd build && \
 # Final runtime image
 FROM ubuntu:22.04
 
+# Set a faster Ubuntu mirror for runtime
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror.math.princeton.edu/pub/ubuntu/|g' /etc/apt/sources.list
+
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
     libprotobuf23 \
@@ -52,6 +60,9 @@ RUN apt-get update && apt-get install -y \
     jackd2 \
     alsa-utils \
     libfuse2 \
+    libboost-filesystem-dev \
+    libboost-program-options-dev \
+    libboost-system-dev \
     && apt-get clean
 
 # Set the working directory
