@@ -1,0 +1,27 @@
+{
+    "host_config" : {
+        "samplerate" : 44100
+    },
+    "tracks" : [
+        {
+            "name" : "main",
+            "channels" : 2,
+            "inputs" : [],
+            "outputs" : [
+                {
+                    "engine_bus" : 0,
+                    "track_bus" : 0
+                }
+            ],
+            "plugins" : [
+                {
+                    "path" : "TonalFlexReverb.vst3",
+                    "name" : "TonalFlexReverb",
+                    "type" : "vst3x",
+                    "uid" : "TonalFlexReverb"
+                }
+            ]
+        }
+    ],
+    "midi" : {}
+}
