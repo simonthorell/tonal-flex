@@ -7,15 +7,18 @@
       <h3>Retry in 5 seconds...</h3>
     </div>
 
-    <!-- Main UI -->
-    <div v-else>
+     <!-- Main UI -->
+     <div v-else>
       <div class="transport-controls-container">
         <div v-if="loadingTransport" class="loading">Loading Transport Settings...</div>
         <div v-else-if="errorTransport" class="error">{{ errorTransport }}</div>
         <div v-else class="transport">
-          <label>BPM:</label>
-          <input type="number" v-model.number="bpm" @input="updateBpm" />
-          <span>{{ bpm }}</span>
+          <div class="bpm-label">BPM</div>
+          <div class="bpm-controls">
+            <button class="bpm-button" @click="decreaseBpm">‹</button>
+            <span class="bpm-value">{{ bpm }}</span>
+            <button class="bpm-button" @click="increaseBpm">›</button>
+          </div>
         </div>
       </div>
 
@@ -127,6 +130,16 @@ export default defineComponent({
       }
     };
 
+    const increaseBpm = () => {
+      bpm.value++;
+      updateBpm();
+    };
+
+    const decreaseBpm = () => {
+      bpm.value--;
+      updateBpm();
+    };
+
     const fetchTransport = async () => {
       loadingTransport.value = true;
       try {
@@ -235,6 +248,8 @@ export default defineComponent({
       setTempValue,
       handleSliderRelease,
       hideTempValue,
+      increaseBpm,
+      decreaseBpm,
 
     };
   },
@@ -255,8 +270,64 @@ export default defineComponent({
 .transport-controls-container {
   width: 100%;
   margin-top: 20px;
-  color:blue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: blue;
 }
+
+.transport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-family: Arial, sans-serif;
+}
+
+.bpm-label {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: rgb(62, 62, 255);
+}
+
+.bpm-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.bpm-value {
+  padding: 10px;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: white;
+  min-width: 40px;
+  color: rgb(62, 62, 255);
+  text-align: center;
+  border: 1px solid rgba(62, 62, 255, 0.7);
+  border-radius: 12px;
+}
+
+.bpm-button {
+  width: 40px;
+  height: 40px;
+  background-color: rgba(62, 62, 255, 0.4);
+  color: rgb(0, 0, 0);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 2em;
+  border: 1px solid rgba(62, 62, 255, 0.5);
+  border-radius: 12px;
+}
+
+.btpm-button:hover {
+    background-color: #ce1111;
+  }
+
+.bpm-buttton:active {
+    background-color: #777;
+  }
 
 .active-plugins-container {
   width: 100%;

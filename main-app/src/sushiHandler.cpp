@@ -39,9 +39,9 @@ bool SushiHandler::startSushi(const std::string& configName) {
             sushiFlag,
             "--connect-ports",
             "--base-plugin-path=" + fullPluginPath,
-            "-c", fullConfigPath,
-            "--log-level=debug",                 // Set log level to debug
-            "--log-file=/app/logs/sushi_debug.log"
+            "-c", fullConfigPath //,
+          //"--log-level=debug",     // enable debugging
+          //"--log-file=/app/logs/sushi_debug.log"
         );
 
         if (sushiProcess->running()) {

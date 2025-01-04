@@ -49,7 +49,7 @@ export default defineComponent({
 
 .header{
   width: 100vw;
-  height: 50px;
+  min-height: 50px;
   position: fixed;
   top: 0;
   z-index: 1000; /* Ensure it stays on top */
@@ -61,13 +61,12 @@ export default defineComponent({
   height: 200px;
   overflow: auto;
   margin-top:50px;
-  border-top: 1px solid rgba(177, 177, 177, 0.2);
-  border-bottom: 1px solid rgba(177, 177, 177, 0.2);
+  background-color: #1c1c1c;
+  border: 1px solid rgba(63, 6, 197, 0.4);
 }
 
 .sush-container{
   width: 100vw;
-
 }
 
 .virtual-synth{
