@@ -10,7 +10,6 @@
     <!-- Main UI -->
     <div v-else>
       <div class="transport-controls-container">
-        <h2>Transport Controls</h2>
         <div v-if="loadingTransport" class="loading">Loading Transport Settings...</div>
         <div v-else-if="errorTransport" class="error">{{ errorTransport }}</div>
         <div v-else class="transport">
@@ -190,6 +189,10 @@ export default defineComponent({
         stopBpmStream?.();
         if (retryInterval.value) clearTimeout(retryInterval.value);
 
+        // Reset errors before retrying
+        error.value = null;
+        errorTransport.value = null;
+
         await fetchPlugins();
         await fetchTransport();
         await subscribeToUpdates();
@@ -198,6 +201,12 @@ export default defineComponent({
         console.log("Connected to Sushi.");
       } catch (err) {
         console.error("Failed to connect to Sushi. Retrying in 5 seconds:", err);
+
+        // Only set error message if it hasn't already been set
+        if (!error.value) {
+          error.value = "Failed to connect to Sushi. Retrying in 5 seconds...";
+        }
+
         retryConnection();
       }
     };
@@ -245,7 +254,8 @@ export default defineComponent({
 
 .transport-controls-container {
   width: 100%;
-  margin-bottom: 20px;
+  margin-top: 20px;
+  color:blue;
 }
 
 .active-plugins-container {

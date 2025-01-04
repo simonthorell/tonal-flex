@@ -42,7 +42,6 @@ export default defineComponent({
 .dashboard {
   width:100vw;
   height:100vh;
-  display: flex;
   flex-direction: column;
   font-family: Arial, sans-serif;
   color: #333;
@@ -59,7 +58,7 @@ export default defineComponent({
 
 .main-app-container{
   width: 100vw;
-  max-height: 200px;
+  height: 200px;
   overflow: auto;
   margin-top:50px;
   border-top: 1px solid rgba(177, 177, 177, 0.2);
@@ -72,7 +71,6 @@ export default defineComponent({
 }
 
 .virtual-synth{
-  position: fixed;
   bottom: 0;
   width: 100%;
   z-index: 1000; /* Ensure it stays on top of other content */
