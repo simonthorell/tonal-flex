@@ -1,44 +1,43 @@
 <template>
-    <div class="synth-overlay">
-        <div class="controls">
-        <label>Octave:</label>
-        <input type="number" v-model="octave" min="-2" max="2" />
-        <label>Velocity:</label>
-        <input type="range" v-model="velocity" min="0" max="127" />
-        </div>
-        <div class="keyboard">
-        <div
-            v-for="note in keys"
-            :key="note"
-            :class="['key', { 'white-key': isWhiteKey(note), 'black-key': !isWhiteKey(note) }]"
-            @mousedown="playNote(note)"
-            @mouseup="stopNote(note)"
-            @mouseleave="stopNote(note)"
-        >
-            {{ note }}
-        </div>
-        </div>
+  <div class="synth-overlay">
+    <div class="controls">
+      <label>Octave:</label>
+      <input type="number" v-model="octave" min="-2" max="2" />
+      <label>Velocity:</label>
+      <input type="range" v-model="velocity" min="0" max="127" />
     </div>
+    <div class="keyboard">
+      <div
+        v-for="note in keys"
+        :key="note"
+        :class="['key', { 'white-key': isWhiteKey(note), 'black-key': !isWhiteKey(note) }]"
+        @mousedown="playNote(note)"
+        @mouseup="stopNote(note)"
+        @mouseleave="stopNote(note)"
+      >
+        {{ note }}
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-import { KeyboardControllerClient } from "@/proto/sushi_rpc.client";
-import { NoteOnRequest, NoteOffRequest } from "@/proto/sushi_rpc";
-import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
-
-const transport = new GrpcWebFetchTransport({
-  baseUrl: "http://localhost:8080",
-});
-
-const keyboardClient = new KeyboardControllerClient(transport);
+import { defineComponent, ref, watch } from "vue";
+import synthStore from "@/stores/synthStore";
 
 export default defineComponent({
   name: "VirtualSynth",
-  setup() {
+  props: {
+    configFileName: {
+      type: String,
+      required: true,
+    },
+  },
+  setup(props) {
     const octave = ref(0); // Default octave
     const velocity = ref(100); // Default velocity
     const activeNotes = ref(new Set<number>()); // Track active notes to avoid duplicates
+    const isEnabled = ref(true); // Enable overlay only for specific configs
 
     // Notes for the keyboard
     const keys = ref(["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]);
@@ -50,15 +49,7 @@ export default defineComponent({
       if (activeNotes.value.has(midiNote)) return;
       activeNotes.value.add(midiNote);
 
-      try {
-        const request = NoteOnRequest.create({
-          note: midiNote,
-          velocity: velocity.value,
-        });
-        await keyboardClient.sendNoteOn(request);
-      } catch (err) {
-        console.error("Failed to play note:", err);
-      }
+      await synthStore.sendNoteOn(midiNote, velocity.value);
     };
 
     const stopNote = async (note: string) => {
@@ -66,14 +57,7 @@ export default defineComponent({
       if (!activeNotes.value.has(midiNote)) return;
       activeNotes.value.delete(midiNote);
 
-      try {
-        const request = NoteOffRequest.create({
-          note: midiNote,
-        });
-        await keyboardClient.sendNoteOff(request);
-      } catch (err) {
-        console.error("Failed to stop note:", err);
-      }
+      await synthStore.sendNoteOff(midiNote);
     };
 
     const convertToMidi = (note: string, octave: number): number => {
@@ -87,6 +71,15 @@ export default defineComponent({
       return baseNotes[note] + (octave + 2) * 12;
     };
 
+    // Watch for config file changes
+    watch(
+      () => props.configFileName,
+      (newConfig) => {
+        isEnabled.value = newConfig === "play_online_synth.json";
+      },
+      { immediate: true }
+    );
+
     return {
       keys,
       octave,
@@ -94,6 +87,7 @@ export default defineComponent({
       playNote,
       stopNote,
       isWhiteKey,
+      isEnabled,
     };
   },
 });
@@ -103,7 +97,7 @@ export default defineComponent({
 .synth-overlay {
   position: fixed;
   bottom: 0;
-  width: 100%;
+  width: 100vw;
   background-color: rgba(0, 0, 0, 0.9);
   color: white;
   padding: 10px;
@@ -124,6 +118,7 @@ export default defineComponent({
 }
 
 .keyboard {
+  width: 100vw;
   display: flex;
   justify-content: center;
 }
