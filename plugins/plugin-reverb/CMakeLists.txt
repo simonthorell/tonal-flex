@@ -57,6 +57,15 @@ target_link_libraries(${PROJECT_NAME}
         juce::juce_dsp
         juce::juce_gui_basics
 
+        # Conditional libraries for Linux
+        $<$<BOOL:${UNIX}>:${ALSA_LIBRARIES}>
+        $<$<BOOL:${UNIX}>:${X11_LIBRARIES}>
+        $<$<BOOL:${UNIX}>:${CURL_LIBRARIES}>
+        $<$<BOOL:${UNIX}>:${FREETYPE_LIBRARIES}>
+        $<$<BOOL:${UNIX}>:${FONTCONFIG_LIBRARIES}>
+        $<$<BOOL:${UNIX}>:${GL_LIBRARIES}>
+        $<$<BOOL:${UNIX}>:${WEBKIT_LIBRARIES}>
+
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
