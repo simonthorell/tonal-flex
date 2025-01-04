@@ -20,6 +20,9 @@ sudo iw dev wlan0 scan | grep SSID
 Setup Wifi File using nano:
 
 ```shell
+sudo mkdir -p /var/run/wpa_supplicant
+sudo chmod 755 /var/run/wpa_supplicant
+
 sudo mkdir /etc/wpa_supplicant
 sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
 ```
@@ -40,7 +43,7 @@ network={
 Make the file executable:
 
 ```shell
-sudo chmod 600 /etc/wpa_supplicant/wpa_supplicant.
+sudo chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
 sudo systemctl restart wpa_supplicant
 sudo wpa_cli
 sudo iw wlan0 link
@@ -50,9 +53,6 @@ sudo iw wlan0 link
 
 ```shell
 sudo nano /etc/network/interfaces
-```
-
-```shell
 sudo nano /etc/systemd/network/10-wlan0.network
 ```
 
@@ -64,6 +64,9 @@ Name=wlan0
 
 [Network]
 DHCP=yes
+
+[Wireless]
+WPAConf=/etc/wpa_supplicant/wpa_supplicant.conf
 ```
 
 Restart WLan:
@@ -73,7 +76,7 @@ sudo systemctl restart systemd-networkd
 sudo systemctl enable systemd-networkd
 
 sudo systemctl restart wpa_supplicant
-sudo systemctl restart wpa_supplicant
+sudo systemctl enable wpa_supplicant
 
 iw wlan0 link
 ```
