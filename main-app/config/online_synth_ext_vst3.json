@@ -1,0 +1,74 @@
+{
+    "host_config" : {
+        "samplerate" : 48000,
+        "tempo" : 140.0,
+        "playing_mode" : "playing"
+    },
+    "tracks" : [
+        {
+            "name" : "main",
+            "channels" : 2,
+            "inputs" : [],
+            "outputs" : [
+                {
+                    "engine_bus" : 0,
+                    "track_bus" : 0
+                }
+            ],
+            "plugins" : [
+                {
+                    "uid" : "sushi.brickworks.simple_synth",
+                    "name" : "synth",
+                    "type" : "internal"
+                },
+                {
+                    "uid" : "sushi.testing.send",
+                    "name" : "reverb_send",
+                    "type" : "internal"
+                }
+            ]
+        },
+        {
+            "name" : "aux",
+            "channels" : 2,
+            "inputs" : [],
+            "outputs" : [
+                {
+                    "engine_bus" : 0,
+                    "track_bus" : 0
+                }
+            ],
+            "plugins" : [
+                {
+                    "uid" : "sushi.testing.return",
+                    "name" : "return",
+                    "type" : "internal"
+                },
+                {
+                    "path" : "TonalFlexReverb.vst3",
+                    "uid" : "TonalFlexReverb",
+                    "name" : "TonalFlexReverb",
+                    "type" : "vst3x"
+                }
+            ]
+        }
+    ],
+    "midi" : {
+        "track_connections" : [
+            {
+                "port" : 0,
+                "channel" : "all",
+                "track" : "main",
+                "raw_midi" : false
+            }
+        ]
+    },
+    "initial_state" : [
+        {
+            "processor" : "reverb_send",
+            "properties" : {
+                "destination_name" : "return"
+            }
+        }
+    ]
+}

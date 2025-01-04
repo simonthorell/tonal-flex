@@ -7,5 +7,12 @@
 .vscode/
 
 # ElkOS
-elk-os/elk-pi/rpi4-image/*
+elk-os/elk-pi/rpi-image/*
+<<<<<<< HEAD
 elk-os/elk-sushi/sushi/*
+=======
+elk-os/elk-sushi/sushi/*
+
+# Frontend
+frontend/.vite/*
+>>>>>>> main

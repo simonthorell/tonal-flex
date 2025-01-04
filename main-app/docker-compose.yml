@@ -1,0 +1,42 @@
+services:
+  main_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PLATFORM=${PLATFORM:-linux} # Pass PLATFORM as a build argument
+    container_name: main_app
+    networks:
+      - grpc-network
+    devices:
+      - "/dev/snd:/dev/snd" # For Linux audio devices (ignored on macOS)
+      - /dev/fuse:/dev/fuse
+    group_add:
+      - "audio" # For Linux audio permissions (ignored on macOS)
+    environment:
+      - PLATFORM=${PLATFORM:-linux} # Pass PLATFORM as an environment variable for runtime
+      - JACK_NO_AUDIO_RESERVATION=1
+    volumes:
+      - /tmp/jack:/tmp/jack # For JACK socket sharing on macOS
+    shm_size: 512m # Increase shared memory to 512 MB
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_NICE # Allow real-time audio processing (required for JACK on both Linux and macOS)
+      - IPC_LOCK # Allow memory locking
+    mem_limit: 512m
+
+  envoy:
+    image: envoyproxy/envoy:v1.20-latest
+    container_name: envoy
+    networks:
+      - grpc-network
+    volumes:
+      - ./envoy/envoy.yml:/etc/envoy/envoy.yaml
+    ports:
+      - "8080:8080" # Expose Envoy port for external communication
+      - "9901:9901" # Expose Envoy admin port for debugging
+
+networks:
+  grpc-network:
+    driver: bridge

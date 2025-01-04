@@ -12,7 +12,7 @@ cd "$(dirname "$0")"
 cd ../rpi-image
 
 # Where to save the image
-IMAGE_NAME="elk-pi-image-v1.0.0.img.xz"
+IMAGE_NAME="elk-pi-image-v1.0.0.wic.bz2"
 DOWNLOAD_URL="https://github.com/elk-audio/elk-pi/releases/download/1.0.0/elkpi-audio-os-image-raspberrypi4-64-v1.0.0.wic.bz2"
 
 # Check if file already exists
