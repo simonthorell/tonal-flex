@@ -46,8 +46,8 @@
                 },
                 {
                     "path" : "TonalFlexReverb.vst3",
-                    "uid" : "tonalflex.reverb",
-                    "name" : "reverb",
+                    "uid" : "TonalFlexReverb",
+                    "name" : "TonalFlexReverb",
                     "type" : "vst3x"
                 }
             ]

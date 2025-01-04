@@ -26,7 +26,7 @@ bool SushiHandler::startSushi(const std::string& configName) {
         }
 
         // Determine Sushi flag
-        std::string sushiFlag = "-j"; // Modify if needed based on the platform
+        std::string sushiFlag = "-j"; // -j for jack | -a for alsa
 
         // Log the command for debugging
         std::cout << "Starting Sushi with binary: " << sushiPath << std::endl;
@@ -39,7 +39,9 @@ bool SushiHandler::startSushi(const std::string& configName) {
             sushiFlag,
             "--connect-ports",
             "--base-plugin-path=" + fullPluginPath,
-            "-c", fullConfigPath
+            "-c", fullConfigPath,
+            "--log-level=debug",                 // Set log level to debug
+            "--log-file=/app/logs/sushi_debug.log"
         );
 
         if (sushiProcess->running()) {
