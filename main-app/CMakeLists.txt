@@ -31,5 +31,5 @@ target_link_libraries(main_app
     gRPC::grpc++
     protobuf::libprotobuf
     protobuf::libprotoc
-    Boost::boost
+    Boost::process
 )
