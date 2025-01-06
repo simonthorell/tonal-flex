@@ -1,14 +1,20 @@
 # Cross-Compile for Aarch64 Linux
 
-```shell
-cd main-app/x-compile/
-git clone --recurse-submodules -b v1.57.0 https://github.com/grpc/grpc.git
+```sh
+cd main-app
+docker build -t xcompiler -f x-compile/Dockerfile .
+docker run --name xcompiler -dit xcompiler /bin/bash
+docker exec -it xcompiler /bin/bash
+
+# Check file format of compiled ELF binary
+readelf -h main_app
 ```
 
-```shell
-docker build -t my-aarch64-builder -f main-app/x-compile/Dockerfile .
+```sh
+# Copy Executable from container
+docker cp xcompiler:/app/main_app ./main_app
+```
 
-docker create --name extract-container my-aarch64-builder
-docker cp extract-container:/app/build/main_app ./main_app_aarch64
-docker rm extract-container
+```sh
+scp -r main-app/main_app mind@192.168.50.198:~/
 ```
