@@ -6,7 +6,12 @@
         {
             "name" : "main",
             "channels" : 2,
-            "inputs" : [],
+            "inputs" : [
+                {
+                    "engine_bus" : 0,
+                    "track_bus" : 0
+                }
+            ],
             "outputs" : [
                 {
                     "engine_bus" : 0,
