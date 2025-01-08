@@ -1,5 +1,6 @@
 services:
   envoy:
+    container_name: envoy-proxy
     image: envoyproxy/envoy:v1.20-latest
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml

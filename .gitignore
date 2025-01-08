@@ -1,10 +1,11 @@
-# Assets
-.assets/*
-!.assets/logo.png
-
 # Root
 .DS_Store
 .vscode/
+.env
+
+# Assets
+.assets/*
+!.assets/logo.png
 
 # ElkOS
 elk-os/elk-pi/rpi-image/*
@@ -12,3 +13,6 @@ elk-os/elk-sushi/sushi/*
 
 # Frontend
 frontend/.vite/*
+
+# Envoy
+envoy/bin/*

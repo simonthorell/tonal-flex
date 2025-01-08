@@ -12,6 +12,14 @@ Join us as we revolutionize audio processing with open-source innovation! ðŸš€ ð
 
 ---
 
+## Environment Variables
+
+You need to create a `.env` file in the root of this project and add:
+
+```sh
+DEVICE_IP=192.168.XX.XXX # Replace with actual device IP
+```
+
 ## Project Rules
 
 ### Git Branches
