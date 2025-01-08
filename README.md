@@ -20,6 +20,8 @@ You need to create a `.env` file in the root of this project and add:
 DEVICE_IP=192.168.XX.XXX # Replace with actual device IP
 ```
 
+---
+
 ## Project Rules
 
 ### Git Branches
