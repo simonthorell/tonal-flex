@@ -7,8 +7,8 @@
       <h3>Retry in 5 seconds...</h3>
     </div>
 
-     <!-- Main UI -->
-     <div v-else>
+    <!-- Main UI -->
+    <div v-else>
       <div class="transport-controls-container">
         <div v-if="loadingTransport" class="loading">Loading Transport Settings...</div>
         <div v-else-if="errorTransport" class="error">{{ errorTransport }}</div>
@@ -51,188 +51,192 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted, onUnmounted } from "vue";
-import sushiStore from "@/stores/sushiStore";
+import { defineComponent, ref, reactive, onMounted, onUnmounted } from 'vue'
+import sushiStore from '@/stores/sushiStore'
 
 export default defineComponent({
-  name: "SushiUI",
+  name: 'SushiUI',
   setup() {
-    const bpm = ref<number>(120);
-    const plugins = ref<any[]>([]);
-    const tempValues = reactive<Record<number, number>>({});
-    const errorTransport = ref<string | null>(null);
-    const loadingTransport = ref(false);
-    const error = ref<string | null>(null);
-    const loading = ref(false);
-    const isConnected = ref(false);
-    const retryInterval = ref<number | null>(null);
+    const bpm = ref<number>(120)
+    const plugins = ref<any[]>([])
+    const tempValues = reactive<Record<number, number>>({})
+    const errorTransport = ref<string | null>(null)
+    const loadingTransport = ref(false)
+    const error = ref<string | null>(null)
+    const loading = ref(false)
+    const isConnected = ref(false)
+    const retryInterval = ref<number | null>(null)
 
-    let stopParameterStream: (() => void) | null = null;
-    let stopBpmStream: (() => void) | null = null;
+    let stopParameterStream: (() => void) | null = null
+    let stopBpmStream: (() => void) | null = null
 
     const retryConnection = () => {
-      console.log("Retrying connection to Sushi in 5 seconds...");
+      console.log('Retrying connection to Sushi in 1 seconds...')
       retryInterval.value = window.setTimeout(() => {
-        fetchAndInitialize();
-      }, 5000);
-    };
+        fetchAndInitialize()
+      }, 1000)
+    }
 
     const fetchPlugins = async (): Promise<void> => {
-      loading.value = true;
+      loading.value = true
       try {
-        const fetchedPlugins = await sushiStore.fetchPlugins();
+        const fetchedPlugins = await sushiStore.fetchPlugins()
         plugins.value = fetchedPlugins.map((plugin) => ({
           ...plugin,
           parameters: plugin.parameters.map((param) => ({
             ...param,
             showTempValue: false,
           })),
-        }));
-        console.log("Fetched plugins:", plugins.value);
+        }))
+        console.log('Fetched plugins:', plugins.value)
       } catch (err) {
-        error.value = (err as Error).message;
-        console.error("Failed to fetch plugins:", err);
+        error.value = (err as Error).message
+        console.error('Failed to fetch plugins:', err)
       } finally {
-        loading.value = false;
+        loading.value = false
       }
-    };
+    }
 
     const setTempValue = (param: any, event: Event) => {
-      const newValue = parseFloat((event.target as HTMLInputElement).value);
-      tempValues[param.id] = newValue; // Store the temporary value
-      param.showTempValue = true; // Show the temporary value
-    };
+      const newValue = parseFloat((event.target as HTMLInputElement).value)
+      tempValues[param.id] = newValue // Store the temporary value
+      param.showTempValue = true // Show the temporary value
+    }
 
     const hideTempValue = (param: any) => {
-      param.showTempValue = false; // Hide the temporary value display
-    };
+      param.showTempValue = false // Hide the temporary value display
+    }
 
     const handleSliderRelease = async (pluginId: number, param: any) => {
-      param.showTempValue = false; // Hide the temporary value when the slider is released
-      const newValue = tempValues[param.id]; // Get the stored temporary value
+      param.showTempValue = false // Hide the temporary value when the slider is released
+      const newValue = tempValues[param.id] // Get the stored temporary value
 
       if (newValue !== undefined) {
         try {
-          await updateParam(pluginId, param.id, newValue); // Send the new value to Sushi
-          console.log(`Updated parameter ${param.name} to ${newValue}`);
+          await updateParam(pluginId, param.id, newValue) // Send the new value to Sushi
+          console.log(`Updated parameter ${param.name} to ${newValue}`)
         } catch (error) {
-          console.error(`Failed to update parameter ${param.name}:`, error);
+          console.error(`Failed to update parameter ${param.name}:`, error)
         }
       }
-    };
+    }
 
     const updateParam = async (pluginId: number, paramId: number, value: number) => {
       try {
-        console.log(`Sending parameter update pluginId=${pluginId}, paramId=${paramId} to value=${value}`);
-        await sushiStore.updateParameter({ processorId: pluginId, parameterId: paramId }, value);
+        console.log(
+          `Sending parameter update pluginId=${pluginId}, paramId=${paramId} to value=${value}`,
+        )
+        await sushiStore.updateParameter({ processorId: pluginId, parameterId: paramId }, value)
       } catch (err) {
-        console.error("Failed to update parameter:", err);
+        console.error('Failed to update parameter:', err)
       }
-    };
+    }
 
     const increaseBpm = () => {
-      bpm.value++;
-      updateBpm();
-    };
+      bpm.value++
+      updateBpm()
+    }
 
     const decreaseBpm = () => {
-      bpm.value--;
-      updateBpm();
-    };
+      bpm.value--
+      updateBpm()
+    }
 
     const fetchTransport = async () => {
-      loadingTransport.value = true;
+      loadingTransport.value = true
       try {
-        const { bpm: fetchedBpm } = await sushiStore.fetchTransportSettings();
-        bpm.value = fetchedBpm;
+        const { bpm: fetchedBpm } = await sushiStore.fetchTransportSettings()
+        bpm.value = fetchedBpm
       } catch (err) {
-        errorTransport.value = (err as Error).message;
-        console.error("Failed to fetch transport settings:", err);
+        errorTransport.value = (err as Error).message
+        console.error('Failed to fetch transport settings:', err)
       } finally {
-        loadingTransport.value = false;
+        loadingTransport.value = false
       }
-    };
+    }
 
     const updateBpm = async () => {
       try {
-        await sushiStore.updateBpm(bpm.value);
+        await sushiStore.updateBpm(bpm.value)
       } catch (err) {
-        console.error("Failed to update BPM:", err);
+        console.error('Failed to update BPM:', err)
       }
-    };
+    }
 
     const subscribeToUpdates = async () => {
       stopParameterStream = sushiStore.streamParameterUpdates(
         (update) => {
-          const plugin = plugins.value.find((p) => p.id === update.parameter?.processorId);
+          const plugin = plugins.value.find((p) => p.id === update.parameter?.processorId)
           if (plugin) {
-            const param = plugin.parameters.find((p: any) => p.id === update.parameter?.parameterId);
+            const param = plugin.parameters.find((p: any) => p.id === update.parameter?.parameterId)
             if (param) {
               if (param.value !== update.normalizedValue) {
-                console.log(`Stream update for parameter ${param.name}: normalizedValue=${update.normalizedValue}`);
-                param.value = update.normalizedValue ?? param.value;
+                console.log(
+                  `Stream update for parameter ${param.name}: normalizedValue=${update.normalizedValue}`,
+                )
+                param.value = update.normalizedValue ?? param.value
               }
             }
           }
         },
         (error) => {
-          console.error("Parameter stream error, retrying:", error);
-          isConnected.value = false;
-          retryConnection();
-        }
-      );
+          console.error('Parameter stream error, retrying:', error)
+          isConnected.value = false
+          retryConnection()
+        },
+      )
 
       stopBpmStream = sushiStore.streamBpmUpdates(
         (update) => {
-          if (update.transport?.oneofKind === "tempo") {
-            bpm.value = update.transport.tempo;
+          if (update.transport?.oneofKind === 'tempo') {
+            bpm.value = update.transport.tempo
           }
         },
         (error) => {
-          console.error("BPM stream error, retrying:", error);
-          isConnected.value = false;
-          retryConnection();
-        }
-      );
-    };
+          console.error('BPM stream error, retrying:', error)
+          isConnected.value = false
+          retryConnection()
+        },
+      )
+    }
 
     const fetchAndInitialize = async () => {
       try {
-        stopParameterStream?.();
-        stopBpmStream?.();
-        if (retryInterval.value) clearTimeout(retryInterval.value);
+        stopParameterStream?.()
+        stopBpmStream?.()
+        if (retryInterval.value) clearTimeout(retryInterval.value)
 
         // Reset errors before retrying
-        error.value = null;
-        errorTransport.value = null;
+        error.value = null
+        errorTransport.value = null
 
-        await fetchPlugins();
-        await fetchTransport();
-        await subscribeToUpdates();
+        await fetchPlugins()
+        await fetchTransport()
+        await subscribeToUpdates()
 
-        isConnected.value = true;
-        console.log("Connected to Sushi.");
+        isConnected.value = true
+        console.log('Connected to Sushi.')
       } catch (err) {
-        console.error("Failed to connect to Sushi. Retrying in 5 seconds:", err);
+        console.error('Failed to connect to Sushi. Retrying in 5 seconds:', err)
 
         // Only set error message if it hasn't already been set
         if (!error.value) {
-          error.value = "Failed to connect to Sushi. Retrying in 5 seconds...";
+          error.value = 'Failed to connect to Sushi. Retrying in 5 seconds...'
         }
 
-        retryConnection();
+        retryConnection()
       }
-    };
+    }
 
     onMounted(() => {
-      fetchAndInitialize();
-    });
+      fetchAndInitialize()
+    })
 
     onUnmounted(() => {
-      stopParameterStream?.();
-      stopBpmStream?.();
-      if (retryInterval.value) clearTimeout(retryInterval.value);
-    });
+      stopParameterStream?.()
+      stopBpmStream?.()
+      if (retryInterval.value) clearTimeout(retryInterval.value)
+    })
 
     return {
       bpm,
@@ -250,12 +254,10 @@ export default defineComponent({
       hideTempValue,
       increaseBpm,
       decreaseBpm,
-
-    };
+    }
   },
-});
+})
 </script>
-
 
 <style scoped>
 .sushi-ui {
@@ -322,12 +324,12 @@ export default defineComponent({
 }
 
 .btpm-button:hover {
-    background-color: #ce1111;
-  }
+  background-color: #ce1111;
+}
 
 .bpm-buttton:active {
-    background-color: #777;
-  }
+  background-color: #777;
+}
 
 .active-plugins-container {
   width: 100%;
@@ -368,7 +370,7 @@ export default defineComponent({
   color: #ccc;
 }
 
-.parameter input[type="range"] {
+.parameter input[type='range'] {
   width: 100%;
 }
 
@@ -386,8 +388,8 @@ export default defineComponent({
   color: #f88;
 }
 
-.waiting{
-  color:blue;
+.waiting {
+  color: blue;
   margin-top: 10vh;
 }
 </style>
