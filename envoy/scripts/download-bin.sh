@@ -7,7 +7,7 @@ RESET="\033[0m"
 
 # Version to download
 VERSION="1.32.3"
-IMAGE_NAME="envoy-${VERSION}-linux-aarch_64"
+IMAGE_NAME="envoy"
 DOWNLOAD_URL="https://github.com/envoyproxy/envoy/releases/download/v${VERSION}/${IMAGE_NAME}"
 
 echo -e "${BOLD_GREEN}Starting Envoy v${VERSION} linux aarch64 binary download script...${RESET}\n"
