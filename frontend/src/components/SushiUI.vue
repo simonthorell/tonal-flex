@@ -85,14 +85,13 @@ export default defineComponent({
         const fetchedPlugins = await sushiStore.fetchPlugins();
         plugins.value = fetchedPlugins.map((plugin) => ({
           ...plugin,
-          parameters: plugin.parameters.map((param) => {
-            console.log(
-              `Plugin: ${plugin.name}, Parameter: ${param.name}, Min: ${param.min}, Max: ${param.max}`
-            );
-            return { ...param, showTempValue: false };
-          }),
+          parameters: plugin.parameters.map((param) => ({
+            ...param,
+            uniqueKey: `${plugin.id}-${param.id}`, // Unique identifier for the parameter
+            showTempValue: false,
+          })),
         }));
-        console.log("Fetched plugins:", plugins.value);
+        console.log("Fetched plugins with parameters:", plugins.value);
       } catch (err) {
         error.value = (err as Error).message;
         console.error("Failed to fetch plugins:", err);
