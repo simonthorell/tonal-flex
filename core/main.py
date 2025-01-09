@@ -19,19 +19,28 @@ class MainAppService(main_pb2_grpc.MainAppServicer):
         self.config_dir = "/home/mind/config_files"
 
     def is_hat_connected(self):
-        """Check if the Elk Audio HAT is connected to elkOS."""
         try:
             hat_file_path = "/tmp/audio_hat"
+
+            # Check if the file exists
             if os.path.exists(hat_file_path):
                 with open(hat_file_path, "r") as f:
                     hat_name = f.read().strip()
+
+                    # Validate the contents of the file
                     if hat_name:
                         logging.info("Detected audio HAT: %s", hat_name)
-                        return True
-                    else:
-                        logging.info("Audio HAT file exists but is empty. Assuming no HAT.")
+
+                        # Perform an additional check using `aplay` to detect the audio device
+                        result = subprocess.run(["aplay", "-l"], capture_output=True, text=True)
+                        if "elkpi-stereo" in result.stdout:
+                            logging.info("Audio HAT detected as an audio device.")
+                            return True
+                        else:
+                            logging.warning("Audio HAT file exists but no matching audio device found. Assuming no HAT.")
             else:
                 logging.info("Audio HAT file does not exist. Assuming no HAT.")
+            
             return False
         except Exception as e:
             logging.error("Error checking audio HAT: %s", e)

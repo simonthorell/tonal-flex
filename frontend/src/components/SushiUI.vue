@@ -4,14 +4,14 @@
     <div v-if="!isConnected" class="waiting">
       <h2>Waiting on plugins...</h2>
       <h3>Choose a plugin config if you haven't done so!</h3>
-      <h3>Retry in 5 seconds...</h3>
+      <h3>Retry in 1 seconds...</h3>
     </div>
 
     <!-- Main UI -->
     <div v-else>
       <div class="transport-controls-container">
-        <div v-if="loadingTransport" class="loading">Loading Transport Settings...</div>
-        <div v-else-if="errorTransport" class="error">{{ errorTransport }}</div>
+        <div v-if="loading" class="loading">Loading Transport Settings...</div>
+        <!-- <div v-else-if="errorTransport" class="error">{{ errorTransport }}</div> -->
         <div v-else class="transport">
           <div class="bpm-label">BPM</div>
           <div class="bpm-controls">
@@ -24,24 +24,25 @@
 
       <div class="active-plugins-container">
         <div v-if="loading" class="loading">Loading Plugins...</div>
-        <div v-else-if="error" class="error">{{ error }}</div>
+        <!-- <div v-else-if="error" class="error">{{ error }}</div> -->
         <div v-else class="plugin-container">
           <div v-for="plugin in plugins" :key="plugin.id" class="plugin-box">
             <h3 class="plugin-title">{{ plugin.name }}</h3>
             <div v-for="param in plugin.parameters" :key="param.id" class="parameter">
               <label>{{ param.name }}:</label>
               <input
-                type="range"
-                :min="param.min"
-                :max="param.max"
-                step="0.01"
-                @mousedown="param.showTempValue = true"
-                @mouseup="handleSliderRelease(plugin.id, param)"
-                @mouseleave="hideTempValue(param)"
-                @input="setTempValue(param, $event)"
-              />
-              <span v-if="param.showTempValue">{{ tempValues[param.id] }}</span>
-              <span v-else>{{ param.value }}</span>
+              type="range"
+              :min="param.min"
+              :max="param.max"
+              step="0.001"
+              :value="pausedUpdates[`${plugin.id}-${param.id}`] ? tempValues[`${plugin.id}-${param.id}`] : param.value"
+              @mousedown="startAdjusting(param, plugin.id)"
+              @mouseup="stopAdjusting(param, plugin.id)"
+              @mouseleave="stopAdjusting(param, plugin.id)"
+              @input="setTempValue(param, plugin.id, $event)"
+            />
+            <span v-if="pausedUpdates[`${plugin.id}-${param.id}`]">{{ tempValues[`${plugin.id}-${param.id}`] }}</span>
+            <span v-else>{{ param.value }}</span>
             </div>
           </div>
         </div>
@@ -59,7 +60,8 @@ export default defineComponent({
   setup() {
     const bpm = ref<number>(120)
     const plugins = ref<any[]>([])
-    const tempValues = reactive<Record<number, number>>({})
+    const pausedUpdates = reactive<Record<string, boolean>>({});
+    const tempValues = reactive<Record<string, number>>({});
     const errorTransport = ref<string | null>(null)
     const loadingTransport = ref(false)
     const error = ref<string | null>(null)
@@ -78,30 +80,52 @@ export default defineComponent({
     }
 
     const fetchPlugins = async (): Promise<void> => {
-      loading.value = true
+      loading.value = true;
       try {
-        const fetchedPlugins = await sushiStore.fetchPlugins()
+        const fetchedPlugins = await sushiStore.fetchPlugins();
         plugins.value = fetchedPlugins.map((plugin) => ({
           ...plugin,
-          parameters: plugin.parameters.map((param) => ({
-            ...param,
-            showTempValue: false,
-          })),
-        }))
-        console.log('Fetched plugins:', plugins.value)
+          parameters: plugin.parameters.map((param) => {
+            console.log(
+              `Plugin: ${plugin.name}, Parameter: ${param.name}, Min: ${param.min}, Max: ${param.max}`
+            );
+            return { ...param, showTempValue: false };
+          }),
+        }));
+        console.log("Fetched plugins:", plugins.value);
       } catch (err) {
-        error.value = (err as Error).message
-        console.error('Failed to fetch plugins:', err)
+        error.value = (err as Error).message;
+        console.error("Failed to fetch plugins:", err);
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
-    const setTempValue = (param: any, event: Event) => {
-      const newValue = parseFloat((event.target as HTMLInputElement).value)
-      tempValues[param.id] = newValue // Store the temporary value
-      param.showTempValue = true // Show the temporary value
-    }
+    // Pause live updates and show the temporary value
+    const startAdjusting = (param: any, pluginId: number) => {
+      const key = `${pluginId}-${param.id}`;
+      pausedUpdates[key] = true; // Pause live updates for this parameter
+      param.showTempValue = true; // Show temporary value
+    };
+
+    // Resume live updates and hide the temporary value
+    const stopAdjusting = async (param: any, pluginId: number) => {
+      const key = `${pluginId}-${param.id}`;
+      pausedUpdates[key] = false; // Resume live updates
+      param.showTempValue = false; // Hide temporary value
+
+      const newValue = tempValues[key];
+      if (newValue !== undefined) {
+        await updateParam(pluginId, param.id, newValue); // Update the parameter in Sushi
+        console.log(`Updated parameter ${param.name} to ${newValue}`);
+      }
+    };
+
+    const setTempValue = (param: any, pluginId: number, event: Event) => {
+      const key = `${pluginId}-${param.id}`;
+      const newValue = parseFloat((event.target as HTMLInputElement).value);
+      tempValues[key] = newValue; // Update temporary value
+    };
 
     const hideTempValue = (param: any) => {
       param.showTempValue = false // Hide the temporary value display
@@ -170,12 +194,15 @@ export default defineComponent({
           if (plugin) {
             const param = plugin.parameters.find((p: any) => p.id === update.parameter?.parameterId)
             if (param) {
-              if (param.value !== update.normalizedValue) {
-                console.log(
-                  `Stream update for parameter ${param.name}: normalizedValue=${update.normalizedValue}`,
-                )
-                param.value = update.normalizedValue ?? param.value
-              }
+              const key = `${plugin.id}-${param.id}`;
+              if (!pausedUpdates[key]) { 
+                if (param.value !== update.normalizedValue) {
+                  console.log(
+                    `Stream update for parameter ${param.name}: normalizedValue=${update.normalizedValue}`,
+                  )
+                  param.value = update.normalizedValue ?? param.value
+                }
+              } 
             }
           }
         },
@@ -217,11 +244,11 @@ export default defineComponent({
         isConnected.value = true
         console.log('Connected to Sushi.')
       } catch (err) {
-        console.error('Failed to connect to Sushi. Retrying in 5 seconds:', err)
+        console.error('Failed to connect to Sushi. Retrying in 1 seconds:', err)
 
         // Only set error message if it hasn't already been set
         if (!error.value) {
-          error.value = 'Failed to connect to Sushi. Retrying in 5 seconds...'
+          error.value = 'Failed to connect to Sushi. Retrying in 1 seconds...'
         }
 
         retryConnection()
@@ -254,6 +281,9 @@ export default defineComponent({
       hideTempValue,
       increaseBpm,
       decreaseBpm,
+      startAdjusting,
+      stopAdjusting,
+      pausedUpdates,
     }
   },
 })
