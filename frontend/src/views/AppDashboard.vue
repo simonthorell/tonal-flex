@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard">
     <div class="header">
-      <Header />
+      <Header :isSynthVisible="isSynthVisible" @toggle-synth="toggleSynthVisibility" />
     </div>
     <div class="main-app-container">
       <MainAppUI />
@@ -9,7 +9,7 @@
     <div class="sushi-container">
       <SushiUI />
     </div>
-    <div class="synth-overlay">
+    <div v-if="isSynthVisible" class="synth-overlay">
       <Synth />
     </div>
   </div>
@@ -26,13 +26,15 @@ export default defineComponent({
   name: "Dashboard",
   components: { Header, SushiUI, MainAppUI, Synth },
   setup() {
-
-    const handleConfigLoad = () => {
-      
+    const isSynthVisible = ref(false);
+    const toggleSynthVisibility = (newVisibility: boolean) => {
+      isSynthVisible.value = newVisibility;
+      console.log("Synth visibility:", isSynthVisible.value);
     };
-
+    
     return {
-      handleConfigLoad,
+      isSynthVisible,
+      toggleSynthVisibility
     };
   },
 });

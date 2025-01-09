@@ -27,12 +27,7 @@ import synthStore from "@/stores/synthStore";
 
 export default defineComponent({
   name: "VirtualSynth",
-  props: {
-    configFileName: {
-      type: String,
-      required: true,
-    },
-  },
+  
   setup(props) {
     const octave = ref(0); // Default octave
     const velocity = ref(100); // Default velocity
@@ -70,15 +65,6 @@ export default defineComponent({
       }
       return baseNotes[note] + (octave + 2) * 12;
     };
-
-    // Watch for config file changes
-    watch(
-      () => props.configFileName,
-      (newConfig) => {
-        isEnabled.value = newConfig === "play_online_synth.json";
-      },
-      { immediate: true }
-    );
 
     return {
       keys,
