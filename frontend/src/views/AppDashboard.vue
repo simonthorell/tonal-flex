@@ -6,6 +6,9 @@
     <div class="main-app-container">
       <MainAppUI />
     </div>
+    <div class="sushi-tracks">
+
+    </div>
     <div class="sushi-container">
       <SushiUI />
     </div>
@@ -21,10 +24,11 @@ import Header from "@/components/dashboardHeader.vue";
 import SushiUI from "@/components/SushiUI.vue";
 import MainAppUI from "@/components/MainAppUI.vue";
 import Synth from "@/components/VirtualSynth.vue"
+import Tracks from '@/components/sushiTracks.vue'
 
 export default defineComponent({
   name: "Dashboard",
-  components: { Header, SushiUI, MainAppUI, Synth },
+  components: { Header, SushiUI, MainAppUI, Synth, Tracks },
   setup() {
 
     const handleConfigLoad = () => {
@@ -63,6 +67,11 @@ export default defineComponent({
   margin-top:50px;
   background-color: #1c1c1c;
   border: 1px solid rgba(63, 6, 197, 0.4);
+}
+
+.sushi-tracks{
+  width:100vw;
+  height: 300px;
 }
 
 .sush-container{
