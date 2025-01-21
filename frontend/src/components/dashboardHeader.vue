@@ -1,5 +1,10 @@
 <template>
+
     <div class="header-container">
+      <div class="buttons">
+        <button class="add-track-btn">Add Track</button>
+      </div>
+      <!--
         <div class="toggle-switch-container">
             <label class="switch">
                 <input type="checkbox" :checked="isSynthVisible" @change="toggleSynth" />
@@ -7,15 +12,16 @@
             </label>
             <span class="toggle-label">Synth</span>
         </div>
-        <h2>Plugin Configurations</h2>
+        -->
     </div>
+
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: "Header",
+  name: "dashboardHeader",
   props: {
     isSynthVisible: {
       type: Boolean,
@@ -41,12 +47,13 @@ export default defineComponent({
 .header-container{
     display: flex;
     align-items: center;
-    justify-content: space-between;
+
     width: 100vw;
-    height: 50px;
+    height:8vh;
     background-color: #131313;
     color: blue;
-    padding: 0 20px;
+    background: rgb(0,0,0);
+    background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(92,33,1,1) 12%, rgba(0,0,0,1) 59%);
     }
 
 .toggle-switch-container {
@@ -105,5 +112,21 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(20px);
 }
+
+.add-track-btn{
+  width:150px;
+  height:50px;
+  background-color:orange;
+  border: none;
+}
+
+.add-track-btn{
+  width:150px;
+  height:50px;
+  background-color:orange;
+  border: none;
+}
+
+
 
 </style>

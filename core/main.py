@@ -93,7 +93,7 @@ class MainAppService(main_pb2_grpc.MainAppServicer):
         # Start a new Sushi process
         try:
             sushi_command = [
-                "sushi", *sushi_args, "--multicore-processing=2", "-c", config_path
+                "sushi", *sushi_args, "--multicore-processing=2", "-c",
             ]
             logging.info("Starting Sushi with command: %s", " ".join(sushi_command))
             self.sushi_process = subprocess.Popen(sushi_command)
