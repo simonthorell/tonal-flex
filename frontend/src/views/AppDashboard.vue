@@ -1,70 +1,44 @@
 <template>
   <div class="dashboard">
-    <div class="header">
-      <Heading :isSynthVisible="isSynthVisible" @toggle-synth="toggleSynthVisibility" />
+    <div class="left-panel">
+      <LeftPanel />
     </div>
-    <div class="sushi-tracks">
-      <Tracks />
+    <div class="main-panel">
+      <EffectMap />
     </div>
-    <div class="sushi-container">
-    </div>
-    <div v-if="isSynthVisible" class="synth-overlay">
-      <Synth />
-    </div>
+
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-import Heading from "@/components/dashboardHeader.vue";
-import Synth from "@/components/VirtualSynth.vue"
-import Tracks from '@/components/sushiTracks.vue'
+import { defineComponent } from "vue";
+import LeftPanel from '@/components/LeftPanel.vue'
+import EffectMap from '@/components/EffectMap.vue'
 
 export default defineComponent({
   name: "App-Dashboard",
-  components: { Heading, Synth, Tracks },
-  setup() {
-    const isSynthVisible = ref(false);
-    const toggleSynthVisibility = (newVisibility: boolean) => {
-      isSynthVisible.value = newVisibility;
-      console.log("Synth visibility:", isSynthVisible.value);
-    };
+  components: { LeftPanel, EffectMap},
 
-    return {
-      isSynthVisible,
-      toggleSynthVisibility
-    };
-  },
 });
 </script>
 
 <style scoped>
 .dashboard {
+  display: grid;
+  grid-template-columns: 85px 1fr;
   width:100vw;
   height:100vh;
   font-family: Arial, sans-serif;
-  color: #333;
+  color: #1c1c1c;
 }
 
-.header{
-  width: 100vw;
-  background-color: #1c1c1c;
+.left-panel{
+  height: 100vh;
 }
 
-.sushi-tracks{
-  width:100vw;
-  height: 40vh;
-  background-color:#2b2b2b;
-  overflow:hidden;
-}
-
-.sushi-container{
-  width: 100vw;
-}
-
-.virtual-synth{
-  bottom: 0;
+.main-panel{
   width: 100%;
-  z-index: 1000; /* Ensure it stays on top of other content */
+  height: 100%;
 }
+
 </style>

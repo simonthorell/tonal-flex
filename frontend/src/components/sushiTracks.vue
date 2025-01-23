@@ -119,7 +119,7 @@ export default {
   height:300px;
   width:35px;
   grid-area: slider;
-  background-color:#656565;
+  background-color:#221b1b;
 }
 
 .slider{
