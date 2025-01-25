@@ -1,0 +1,78 @@
+# Use an aarch64-compatible base image
+FROM arm64v8/ubuntu:22.04
+
+# Set environment variables for Bazel and build configuration
+ENV ENVOY_BUILD_ARCH=aarch64
+ENV ENVOY_DOCKER_BUILD_DIR=/tmp/envoy-docker-build
+ENV ENVOY_BUILD_IMAGE="envoyproxy/envoy-build-ubuntu"
+ENV BAZEL_BUILD_EXTRA_OPTIONS="--define tcmalloc=gperftools"
+ENV LLVM_ROOT=/usr/lib/llvm-14
+ENV PATH="/usr/lib/llvm-14/bin:/usr/bin:${PATH}"
+ENV CC=/usr/lib/llvm-14/bin/clang
+ENV CXX=/usr/lib/llvm-14/bin/clang++
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install basic dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    llvm-14 llvm-14-tools \
+    clang-14 \
+    gcc \
+    g++ \
+    libc++-dev \
+    libc++abi-dev \
+    git \
+    python3 \
+    python3-pip \
+    curl \
+    zip \
+    unzip \
+    gnupg \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Docker CLI from Docker's official repository
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    echo "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(grep UBUNTU_CODENAME /etc/os-release | cut -d= -f2) stable" > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && apt-get install -y docker-ce-cli && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install QEMU for ARM64 emulation support
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    qemu-user-static \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Bazelisk (lightweight Bazel version manager)
+RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.12.0/bazelisk-linux-arm64 -o /usr/local/bin/bazel && \
+    chmod +x /usr/local/bin/bazel
+
+# Create a shared source directory
+RUN mkdir -p /source && chmod 775 /source
+
+# Create a non-root user and set permissions for directories
+RUN groupadd sharedgroup && \
+    useradd -ms /bin/bash -g sharedgroup envoyuser && \
+    usermod -aG sharedgroup root && \
+    chown -R envoyuser:sharedgroup /source
+
+# Switch to non-root user
+USER envoyuser
+
+# Add environment variables to envoyuser's shell
+RUN echo 'export LLVM_ROOT=/usr/lib/llvm-14' >> ~/.bashrc && \
+    echo 'export PATH="/usr/lib/llvm-14/bin:$PATH"' >> ~/.bashrc
+
+# Configure Git
+RUN git config --global --add safe.directory /source
+
+# Set working directory to /source
+WORKDIR /source
+
+# Clone the Envoy repository
+RUN git clone --recursive https://github.com/envoyproxy/envoy.git .
+
+# Set default user as root (for the first script)
+USER root
+
+# Set a root password (pass)
+RUN echo "root:pass" | chpasswd
