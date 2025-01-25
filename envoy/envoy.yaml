@@ -32,11 +32,6 @@ static_resources:
                         expose_headers: "grpc-status, grpc-message"
                         max_age: "86400"
                       routes:
-                        - match: { prefix: "/main-app/" }
-                          route:
-                            cluster: main_app_service
-                            prefix_rewrite: "/"
-
                         - match: { prefix: "/sushi/" }
                           route:
                             cluster: sushi_service
@@ -47,30 +42,14 @@ static_resources:
                   - name: envoy.filters.http.grpc_web
                   - name: envoy.filters.http.cors
                   - name: envoy.filters.http.router
+                http2_protocol_options:
+                  max_concurrent_streams: 6
                 access_log:
                   - name: envoy.access_loggers.stdout
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
 
   clusters:
-    - name: main_app_service
-      connect_timeout: 0.25s
-      type: LOGICAL_DNS
-      lb_policy: ROUND_ROBIN
-      typed_extension_protocol_options:
-        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
-          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
-          explicit_http_config:
-            http2_protocol_options: {}
-      load_assignment:
-        cluster_name: main_app_service
-        endpoints:
-          - lb_endpoints:
-              - endpoint:
-                  address:
-                    socket_address:
-                      address: 192.168.0.10 # change this toward your main app device/host ip
-                      port_value: 50051
     - name: sushi_service
       connect_timeout: 0.25s
       type: LOGICAL_DNS
@@ -87,5 +66,21 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: 192.168.0.10 # change this toward your sushi device/host ip
+                      address: localhost # change this toward your sushi device/host ip
                       port_value: 51051
+
+overload_manager:
+  actions:
+    - name: "envoy.overload_actions.reduce_timeouts"
+      triggers:
+        - name: "envoy.resource_monitors.fixed_heap"
+          threshold: 0.9
+    - name: "envoy.overload_actions.stop_accepting_requests"
+      triggers:
+        - name: "envoy.resource_monitors.fixed_heap"
+          threshold: 0.95
+  resource_monitors:
+    - name: "envoy.resource_monitors.fixed_heap"
+      typed_config:
+        "@type": type.googleapis.com/envoy.extensions.resource_monitors.fixed_heap.v3.FixedHeapConfig
+        max_heap_size_bytes: 268435456 # 256 MiB
